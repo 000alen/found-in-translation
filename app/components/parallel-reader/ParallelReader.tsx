@@ -7,12 +7,13 @@ import {
   buildSegmentGroupMap,
   getAlignmentForSegment,
   getLinkedSegmentIds,
+  groupColorToConnectionTheme,
   isSourceSegment,
 } from "@/lib/alignments";
 import { cn } from "@/lib/utils";
 import { SourceColumn, TargetColumn } from "./SourceColumn";
+import { ConnectionOverlay } from "@/app/components/connections";
 import { ConnectionDock, ConnectionLegend } from "./ConnectionDock";
-import { ConnectionRibbons } from "./ConnectionRibbons";
 import { ReaderToolbar } from "./ReaderToolbar";
 import { CommentPanel } from "@/app/components/comments/CommentPanel";
 import { useLocalComments } from "@/app/components/comments/useLocalComments";
@@ -288,7 +289,7 @@ export function ParallelReader({
 
       {!readMode && !showConnections && (
         <div className="mt-3 rounded-xl border border-border bg-paper-elevated px-4 py-2 text-sm text-muted dark:bg-ink-elevated">
-          Connections hidden — press <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-xs">L</kbd> or click Connections to show ribbons
+          Connections hidden — press <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-xs">L</kbd> or click Connections to show links
         </div>
       )}
 
@@ -324,13 +325,13 @@ export function ParallelReader({
           onMouseUp={handleTextSelection}
         >
           {showConnections && activeAlignment && activeColor && mobileColumn === "both" && (
-            <ConnectionRibbons
+            <ConnectionOverlay
               alignment={activeAlignment}
               containerRef={containerRef}
               leftScrollRef={leftScrollRef}
               rightScrollRef={rightScrollRef}
               getElement={getElement}
-              ribbonColor={activeColor.color.ribbon}
+              theme={groupColorToConnectionTheme(activeColor.color)}
               visible
             />
           )}
