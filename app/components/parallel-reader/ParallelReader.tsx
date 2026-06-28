@@ -3,10 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Alignment, MobileColumn, PoemEdition, Segment, ViewMode } from "@/lib/types";
+import {
+  buildSegmentGroupMap,
+  getAlignmentForSegment,
+  getLinkedSegmentIds,
+  isSourceSegment,
+} from "@/lib/alignments";
 import { cn } from "@/lib/utils";
-import { LinkCanvas } from "./LinkCanvas";
 import { SourceColumn, TargetColumn } from "./SourceColumn";
-import { useSyncScroll } from "./SyncScroll";
+import { ConnectionDock, ConnectionLegend } from "./ConnectionDock";
 import { ReaderToolbar } from "./ReaderToolbar";
 import { CommentPanel } from "@/app/components/comments/CommentPanel";
 import { useLocalComments } from "@/app/components/comments/useLocalComments";
@@ -18,24 +23,6 @@ type ParallelReaderProps = {
   studioMode?: boolean;
 };
 
-function getLinkedSegmentIds(
-  segmentId: string,
-  alignments: Alignment[]
-): string[] {
-  const linked = new Set<string>([segmentId]);
-
-  for (const alignment of alignments) {
-    const inSource = alignment.sourceSegmentIds.includes(segmentId);
-    const inTarget = alignment.targetSegmentIds.includes(segmentId);
-    if (!inSource && !inTarget) continue;
-
-    alignment.sourceSegmentIds.forEach((id) => linked.add(id));
-    alignment.targetSegmentIds.forEach((id) => linked.add(id));
-  }
-
-  return Array.from(linked);
-}
-
 export function ParallelReader({
   edition,
   initialAlignments,
@@ -43,83 +30,127 @@ export function ParallelReader({
 }: ParallelReaderProps) {
   const [mode, setMode] = useState<ViewMode>(studioMode ? "align" : "read");
   const [readMode, setReadMode] = useState(false);
-  const [showLinks, setShowLinks] = useState(true);
+  const [showConnections, setShowConnections] = useState(true);
   const [mobileColumn, setMobileColumn] = useState<MobileColumn>("both");
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [linkSourceId, setLinkSourceId] = useState<string | null>(null);
+  const [focusedSegmentId, setFocusedSegmentId] = useState<string | null>(null);
+  const [stagingIds, setStagingIds] = useState<string[]>([]);
   const [alignments, setAlignments] = useState<Alignment[]>(
     initialAlignments ?? edition.alignments
   );
   const [showComments, setShowComments] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement>(null);
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
   const elementMap = useRef<Map<string, HTMLElement>>(new Map());
 
   const comments = useLocalComments(edition.poem.id);
+  const groupMap = useMemo(() => buildSegmentGroupMap(alignments), [alignments]);
 
-  useSyncScroll({
-    leftRef: leftScrollRef,
-    rightRef: rightScrollRef,
-    enabled: mobileColumn === "both" && !readMode,
-  });
+  const focusedIds = useMemo(() => {
+    if (!focusedSegmentId || !showConnections) return new Set<string>();
+    return new Set(getLinkedSegmentIds(focusedSegmentId, alignments));
+  }, [alignments, focusedSegmentId, showConnections]);
 
-  const highlightedIds = useMemo(() => {
-    if (!hoveredId) return new Set<string>();
-    return new Set(getLinkedSegmentIds(hoveredId, alignments));
-  }, [alignments, hoveredId]);
+  const activeAlignment = useMemo(() => {
+    if (!focusedSegmentId) return null;
+    return getAlignmentForSegment(focusedSegmentId, alignments);
+  }, [alignments, focusedSegmentId]);
+
+  const activeColor = focusedSegmentId ? groupMap.get(focusedSegmentId) ?? null : null;
+
+  const stagedSet = useMemo(() => new Set(stagingIds), [stagingIds]);
 
   const registerRef = useCallback((segmentId: string, element: HTMLElement | null) => {
     if (element) elementMap.current.set(segmentId, element);
     else elementMap.current.delete(segmentId);
   }, []);
 
-  const getElement = useCallback(
-    (segmentId: string) => elementMap.current.get(segmentId) ?? null,
-    []
+  const scrollToSegment = useCallback((segmentId: string) => {
+    const element = elementMap.current.get(segmentId);
+    if (!element) return;
+
+    element.scrollIntoView({ behavior: "smooth", block: "center" });
+    setFocusedSegmentId(segmentId);
+  }, []);
+
+  const handleReadClick = useCallback(
+    (segment: Segment) => {
+      const alignment = getAlignmentForSegment(segment.id, alignments);
+      if (!alignment) {
+        setFocusedSegmentId(null);
+        return;
+      }
+
+      setFocusedSegmentId((current) =>
+        current === segment.id ? null : segment.id
+      );
+    },
+    [alignments]
+  );
+
+  const toggleStaging = useCallback((segmentId: string) => {
+    setStagingIds((current) =>
+      current.includes(segmentId)
+        ? current.filter((id) => id !== segmentId)
+        : [...current, segmentId]
+    );
+  }, []);
+
+  const createStagedConnection = useCallback(() => {
+    const sourceIds = stagingIds.filter((id) => isSourceSegment(id));
+    const targetIds = stagingIds.filter((id) => !isSourceSegment(id));
+
+    if (sourceIds.length === 0 || targetIds.length === 0) return;
+
+    const isCross =
+      sourceIds.length > 1 &&
+      targetIds.length > 1 &&
+      sourceIds.some((_, index) => {
+        const sourceOrder = Number(sourceIds[index]?.split(":line-")[1] ?? 0);
+        const targetOrder = Number(targetIds[index]?.split(":line-")[1] ?? 0);
+        return sourceOrder !== targetOrder;
+      });
+
+    const isPartial = sourceIds.length !== targetIds.length;
+
+    let kind: Alignment["kind"] = "parallel";
+    if (isCross) kind = "cross";
+    else if (isPartial) kind = "partial";
+
+    const newAlignment: Alignment = {
+      id: `align-${crypto.randomUUID()}`,
+      poemId: edition.poem.id,
+      sourceSegmentIds: sourceIds,
+      targetSegmentIds: targetIds,
+      kind,
+      createdBy: "editor",
+    };
+
+    setAlignments((current) => [...current, newAlignment]);
+    setStagingIds([]);
+    setFocusedSegmentId(sourceIds[0] ?? targetIds[0] ?? null);
+  }, [edition.poem.id, stagingIds]);
+
+  const handleAlignClick = useCallback(
+    (segment: Segment) => {
+      toggleStaging(segment.id);
+    },
+    [toggleStaging]
   );
 
   const handleLineClick = useCallback(
     (segment: Segment) => {
-      if (mode !== "align") return;
-
-      if (!linkSourceId) {
-        setLinkSourceId(segment.id);
+      if (mode === "align") {
+        handleAlignClick(segment);
         return;
       }
 
-      if (linkSourceId === segment.id) {
-        setLinkSourceId(null);
-        return;
+      if (mode === "read") {
+        handleReadClick(segment);
       }
-
-      const firstIsSource = linkSourceId.includes(":source:");
-      const secondIsSource = segment.id.includes(":source:");
-
-      if (firstIsSource === secondIsSource) {
-        setLinkSourceId(segment.id);
-        return;
-      }
-
-      const sourceId = firstIsSource ? linkSourceId : segment.id;
-      const targetId = firstIsSource ? segment.id : linkSourceId;
-
-      const newAlignment: Alignment = {
-        id: `align-${crypto.randomUUID()}`,
-        poemId: edition.poem.id,
-        sourceSegmentIds: [sourceId],
-        targetSegmentIds: [targetId],
-        kind: "parallel",
-        createdBy: "editor",
-      };
-
-      setAlignments((current) => [...current, newAlignment]);
-      setLinkSourceId(null);
     },
-    [edition.poem.id, linkSourceId, mode]
+    [handleAlignClick, handleReadClick, mode]
   );
 
   const saveAlignments = useCallback(async () => {
@@ -130,17 +161,19 @@ export function ParallelReader({
     });
   }, [alignments, edition.poem.id]);
 
-  const deleteSelectedAlignment = useCallback(() => {
-    if (!selectedId) return;
+  const deleteFocusedAlignment = useCallback(() => {
+    if (!activeAlignment) return;
     setAlignments((current) =>
-      current.filter(
-        (alignment) =>
-          !alignment.sourceSegmentIds.includes(selectedId) &&
-          !alignment.targetSegmentIds.includes(selectedId)
-      )
+      current.filter((alignment) => alignment.id !== activeAlignment.id)
     );
-    setSelectedId(null);
-  }, [selectedId]);
+    setFocusedSegmentId(null);
+  }, [activeAlignment]);
+
+  const stagingSummary = useMemo(() => {
+    const sourceCount = stagingIds.filter((id) => isSourceSegment(id)).length;
+    const targetCount = stagingIds.length - sourceCount;
+    return { sourceCount, targetCount };
+  }, [stagingIds]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -153,7 +186,8 @@ export function ParallelReader({
           setReadMode((value) => !value);
           break;
         case "l":
-          setShowLinks((value) => !value);
+          setShowConnections((value) => !value);
+          setFocusedSegmentId(null);
           break;
         case "c":
           setMode("comment");
@@ -161,10 +195,11 @@ export function ParallelReader({
           break;
         case "a":
           setMode("align");
+          setFocusedSegmentId(null);
           break;
         case "escape":
-          setLinkSourceId(null);
-          setSelectedId(null);
+          setStagingIds([]);
+          setFocusedSegmentId(null);
           setShowShortcuts(false);
           break;
         case "?":
@@ -195,10 +230,9 @@ export function ParallelReader({
     const segmentId = element?.getAttribute("data-segment-id");
     if (!segmentId) return;
 
-    const exact = selection.toString().trim();
     comments.createThread({
       segmentId,
-      exact,
+      exact: selection.toString().trim(),
       content: "",
     });
     setShowComments(true);
@@ -221,24 +255,34 @@ export function ParallelReader({
           >
             <ReaderToolbar
               mode={mode}
-              showLinks={showLinks}
+              showConnections={showConnections}
               mobileColumn={mobileColumn}
               commentCount={comments.threads.length}
               studioMode={studioMode}
               onModeChange={(nextMode) => {
-          setMode(nextMode);
-          if (nextMode === "comment") setShowComments(true);
-        }}
-              onToggleLinks={() => setShowLinks((value) => !value)}
+                setMode(nextMode);
+                if (nextMode === "comment") setShowComments(true);
+                if (nextMode !== "read") setFocusedSegmentId(null);
+              }}
+              onToggleConnections={() => {
+                setShowConnections((value) => !value);
+                setFocusedSegmentId(null);
+              }}
               onToggleComments={() => setShowComments((value) => !value)}
               onMobileColumnChange={setMobileColumn}
               onSaveAlignments={saveAlignments}
-              onDeleteAlignment={deleteSelectedAlignment}
+              onDeleteAlignment={deleteFocusedAlignment}
               onToggleReadMode={() => setReadMode(true)}
             />
           </motion.div>
         )}
       </AnimatePresence>
+
+      {!readMode && (
+        <div className="mt-3">
+          <ConnectionLegend count={alignments.length} />
+        </div>
+      )}
 
       {readMode && (
         <button
@@ -252,74 +296,72 @@ export function ParallelReader({
 
       <div
         className={cn(
-          "relative mt-6 flex min-h-0 flex-1 gap-0",
+          "relative mt-4 flex min-h-0 flex-1 gap-0",
           showComments ? "lg:pr-[340px]" : ""
         )}
       >
         <div
-          ref={containerRef}
           className={cn(
             "relative flex min-h-[60vh] flex-1 rounded-2xl border border-border bg-paper-elevated/60 p-4 shadow-sm backdrop-blur-sm dark:bg-ink-elevated/40 md:p-8",
-            mobileColumn === "both" ? "flex-row gap-8" : "flex-col gap-6"
+            mobileColumn === "both" ? "flex-row gap-10" : "flex-col gap-6",
+            activeAlignment && "pb-44 md:pb-48"
           )}
           onMouseUp={handleTextSelection}
         >
-        {mode === "align" && (
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center pt-2">
-            <span className="rounded-full bg-accent/90 px-3 py-1 text-xs text-white shadow-sm">
-              Alignment mode — click a line, then its translation
-            </span>
-          </div>
-        )}
-          <LinkCanvas
-            alignments={alignments}
-            activeSegmentIds={highlightedIds}
-            containerRef={containerRef}
-            getElement={getElement}
-            visible={showLinks && mobileColumn === "both"}
-          />
+          {mode === "align" && (
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center pt-3">
+              <span className="rounded-full bg-ink/85 px-4 py-1.5 text-xs text-paper shadow-lg backdrop-blur-sm dark:bg-paper/90 dark:text-ink">
+                Select passages on both sides, then create a connection
+              </span>
+            </div>
+          )}
 
           {(mobileColumn === "source" || mobileColumn === "both") && (
             <SourceColumn
               segments={edition.segments}
-              alignments={alignments}
-              highlightedIds={highlightedIds}
-              selectedId={selectedId}
-              linkSourceId={linkSourceId}
+              groupMap={groupMap}
+              focusedIds={focusedIds}
+              dimUnfocused={showConnections}
+              stagedIds={stagedSet}
               mode={mode}
               languageLabel={edition.book.sourceLanguage.toUpperCase()}
               scrollRef={leftScrollRef}
-              onHover={setHoveredId}
-              onLineClick={(segment) => {
-                if (mode === "align") handleLineClick(segment);
-                else setSelectedId(segment.id);
-              }}
+              onLineClick={handleLineClick}
               registerRef={registerRef}
               className={cn(mobileColumn === "both" ? "w-1/2" : "w-full")}
             />
           )}
 
           {mobileColumn === "both" && (
-            <div className="hidden w-px shrink-0 bg-border md:block" aria-hidden />
+            <div
+              className="hidden w-px shrink-0 bg-gradient-to-b from-transparent via-border to-transparent md:block"
+              aria-hidden
+            />
           )}
 
           {(mobileColumn === "target" || mobileColumn === "both") && (
             <TargetColumn
               segments={edition.segments}
-              alignments={alignments}
-              highlightedIds={highlightedIds}
-              selectedId={selectedId}
-              linkSourceId={linkSourceId}
+              groupMap={groupMap}
+              focusedIds={focusedIds}
+              dimUnfocused={showConnections}
+              stagedIds={stagedSet}
               mode={mode}
               languageLabel={edition.book.targetLanguage.toUpperCase()}
               scrollRef={rightScrollRef}
-              onHover={setHoveredId}
-              onLineClick={(segment) => {
-                if (mode === "align") handleLineClick(segment);
-                else setSelectedId(segment.id);
-              }}
+              onLineClick={handleLineClick}
               registerRef={registerRef}
               className={cn(mobileColumn === "both" ? "w-1/2" : "w-full")}
+            />
+          )}
+
+          {showConnections && activeAlignment && activeColor && (
+            <ConnectionDock
+              alignment={activeAlignment}
+              color={activeColor.color}
+              segments={edition.segments}
+              onJumpTo={scrollToSegment}
+              onClose={() => setFocusedSegmentId(null)}
             />
           )}
         </div>
@@ -338,13 +380,35 @@ export function ParallelReader({
         />
       </div>
 
-      <KeyboardShortcuts open={showShortcuts} onClose={() => setShowShortcuts(false)} />
-
-      {linkSourceId && mode === "align" && (
-        <div className="mt-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-ink dark:text-paper">
-          Click a line in the opposite column to create a link. Press Esc to cancel.
+      {mode === "align" && stagingIds.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-paper-elevated px-4 py-3 dark:bg-ink-elevated">
+          <p className="text-sm text-muted">
+            Staging {stagingSummary.sourceCount} original and {stagingSummary.targetCount} translation
+            {stagingSummary.targetCount === 1 ? "" : "s"}
+          </p>
+          <div className="ml-auto flex gap-2">
+            <button
+              type="button"
+              onClick={() => setStagingIds([])}
+              className="rounded-full px-3 py-1.5 text-sm text-muted hover:text-ink dark:hover:text-paper"
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              onClick={createStagedConnection}
+              disabled={
+                stagingSummary.sourceCount === 0 || stagingSummary.targetCount === 0
+              }
+              className="rounded-full bg-accent px-4 py-1.5 text-sm text-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Create connection
+            </button>
+          </div>
         </div>
       )}
+
+      <KeyboardShortcuts open={showShortcuts} onClose={() => setShowShortcuts(false)} />
     </div>
   );
 }

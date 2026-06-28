@@ -1,43 +1,52 @@
 import type { Segment } from "@/lib/types";
+import type { SegmentGroupInfo } from "@/lib/alignments";
 import { PoemLine } from "./PoemLine";
 
 type StanzaProps = {
   stanzaId: string;
   lines: Segment[];
-  highlightedIds: Set<string>;
-  selectedId?: string | null;
-  linkSourceId?: string | null;
+  groupMap: Map<string, SegmentGroupInfo>;
+  focusedIds: Set<string>;
+  dimUnfocused: boolean;
+  stagedIds: Set<string>;
   mode?: "read" | "align" | "comment";
-  onHover?: (segmentId: string | null) => void;
   onLineClick?: (segment: Segment) => void;
   registerRef?: (segmentId: string, element: HTMLElement | null) => void;
 };
 
 export function Stanza({
   lines,
-  highlightedIds,
-  selectedId,
-  linkSourceId,
+  groupMap,
+  focusedIds,
+  dimUnfocused,
+  stagedIds,
   mode = "read",
-  onHover,
   onLineClick,
   registerRef,
 }: StanzaProps) {
+  const hasFocus = focusedIds.size > 0;
+
   return (
     <div className="poem-stanza mb-8 last:mb-0">
-      {lines.map((line) => (
-        <PoemLine
-          key={line.id}
-          segment={line}
-          isHighlighted={highlightedIds.has(line.id)}
-          isSelected={selectedId === line.id}
-          isLinkSource={linkSourceId === line.id}
-          mode={mode}
-          onHover={onHover}
-          onClick={onLineClick}
-          registerRef={registerRef}
-        />
-      ))}
+      {lines.map((line) => {
+        const group = groupMap.get(line.id) ?? null;
+        const isFocused = focusedIds.has(line.id);
+        const isDimmed = dimUnfocused && hasFocus && !isFocused;
+
+        return (
+          <PoemLine
+            key={line.id}
+            segment={line}
+            group={group}
+            isFocused={isFocused}
+            isDimmed={isDimmed}
+            isStaged={stagedIds.has(line.id)}
+            mode={mode}
+            onClick={onLineClick}
+            registerRef={registerRef}
+          />
+        );
+      })}
     </div>
   );
 }

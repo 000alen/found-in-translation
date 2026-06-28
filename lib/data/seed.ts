@@ -12,7 +12,7 @@ export const seedBook: Book = {
   sourceLanguage: "en",
   targetLanguage: "es",
   description:
-    "A curated collection of Shakespeare's sonnets presented in elegant side-by-side translation, with linked lines and collaborative commentary.",
+            "Side-by-side translations with linked passages, alignment tools, and collaborative commentary.",
   coverGradient: "from-amber-100 via-orange-50 to-rose-100",
   publishedAt: "1609",
 };
@@ -97,15 +97,23 @@ function buildSegments(): Segment[] {
 }
 
 function buildAlignments(): Alignment[] {
-  return sourceLines.map((_, index) => ({
-    id: `align-${index + 1}`,
-    poemId: POEM_ID,
-    sourceSegmentIds: [`${POEM_ID}:source:line-${index + 1}`],
-    targetSegmentIds: [`${POEM_ID}:target:line-${index + 1}`],
-    kind: "parallel" as const,
-    confidence: 1,
-    createdBy: "seed",
-  }));
+  const s = (line: number) => `${POEM_ID}:source:line-${line}`;
+  const t = (line: number) => `${POEM_ID}:target:line-${line}`;
+
+  return [
+    { id: "g1", poemId: POEM_ID, sourceSegmentIds: [s(1)], targetSegmentIds: [t(1)], kind: "parallel", confidence: 1, createdBy: "seed" },
+    { id: "g2", poemId: POEM_ID, sourceSegmentIds: [s(2)], targetSegmentIds: [t(2)], kind: "parallel", confidence: 1, createdBy: "seed" },
+    // Nature imagery appears in different order across languages
+    { id: "g3", poemId: POEM_ID, sourceSegmentIds: [s(3), s(4)], targetSegmentIds: [t(4), t(3)], kind: "cross", confidence: 0.92, createdBy: "seed" },
+    { id: "g4", poemId: POEM_ID, sourceSegmentIds: [s(5), s(6)], targetSegmentIds: [t(5), t(6)], kind: "parallel", confidence: 0.95, createdBy: "seed" },
+    { id: "g5", poemId: POEM_ID, sourceSegmentIds: [s(7), s(8)], targetSegmentIds: [t(7), t(8)], kind: "partial", confidence: 0.9, createdBy: "seed" },
+    // Two English lines compress into one Spanish line
+    { id: "g6", poemId: POEM_ID, sourceSegmentIds: [s(9), s(10)], targetSegmentIds: [t(9)], kind: "partial", confidence: 0.88, createdBy: "seed" },
+    // One English line expands into two Spanish lines
+    { id: "g7", poemId: POEM_ID, sourceSegmentIds: [s(11)], targetSegmentIds: [t(10), t(11)], kind: "partial", confidence: 0.86, createdBy: "seed" },
+    { id: "g8", poemId: POEM_ID, sourceSegmentIds: [s(12)], targetSegmentIds: [t(12)], kind: "parallel", confidence: 1, createdBy: "seed" },
+    { id: "g9", poemId: POEM_ID, sourceSegmentIds: [s(13), s(14)], targetSegmentIds: [t(13), t(14)], kind: "parallel", confidence: 0.94, createdBy: "seed" },
+  ];
 }
 
 export const seedSegments = buildSegments();

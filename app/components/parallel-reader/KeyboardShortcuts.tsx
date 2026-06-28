@@ -9,7 +9,7 @@ const shortcuts = [
   { key: "R", description: "Toggle read mode" },
   { key: "A", description: "Switch to align mode" },
   { key: "C", description: "Switch to comment mode" },
-  { key: "L", description: "Toggle alignment links" },
+  { key: "L", description: "Toggle connection highlights" },
   { key: "?", description: "Show keyboard shortcuts" },
   { key: "Esc", description: "Cancel current action" },
 ];

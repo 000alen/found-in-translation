@@ -5,12 +5,12 @@ import { cn } from "@/lib/utils";
 
 type ReaderToolbarProps = {
   mode: ViewMode;
-  showLinks: boolean;
+  showConnections: boolean;
   mobileColumn: MobileColumn;
   commentCount: number;
   studioMode?: boolean;
   onModeChange: (mode: ViewMode) => void;
-  onToggleLinks: () => void;
+  onToggleConnections: () => void;
   onToggleComments: () => void;
   onMobileColumnChange: (column: MobileColumn) => void;
   onSaveAlignments: () => void;
@@ -26,12 +26,12 @@ const modes: { id: ViewMode; label: string; shortcut: string }[] = [
 
 export function ReaderToolbar({
   mode,
-  showLinks,
+  showConnections,
   mobileColumn,
   commentCount,
   studioMode,
   onModeChange,
-  onToggleLinks,
+  onToggleConnections,
   onToggleComments,
   onMobileColumnChange,
   onSaveAlignments,
@@ -80,15 +80,15 @@ export function ReaderToolbar({
 
         <button
           type="button"
-          onClick={onToggleLinks}
+          onClick={onToggleConnections}
           className={cn(
             "rounded-full px-3 py-2 text-sm transition",
-            showLinks
-              ? "bg-link-source/15 text-link-source"
+            showConnections
+              ? "bg-accent/15 text-accent"
               : "bg-paper-elevated text-muted dark:bg-ink-elevated"
           )}
         >
-          Links {showLinks ? "on" : "off"}
+          Connections
         </button>
 
         <button
@@ -107,22 +107,24 @@ export function ReaderToolbar({
           Read mode
         </button>
 
-        {studioMode && mode === "align" && (
+        {studioMode && (
           <>
             <button
               type="button"
               onClick={onSaveAlignments}
               className="rounded-full bg-accent px-4 py-2 text-sm text-white shadow-sm transition hover:opacity-90"
             >
-              Save links
+              Save
             </button>
-            <button
-              type="button"
-              onClick={onDeleteAlignment}
-              className="rounded-full border border-border px-3 py-2 text-sm text-muted transition hover:text-ink dark:hover:text-paper"
-            >
-              Delete link
-            </button>
+            {mode === "read" && (
+              <button
+                type="button"
+                onClick={onDeleteAlignment}
+                className="rounded-full border border-border px-3 py-2 text-sm text-muted transition hover:text-ink dark:hover:text-paper"
+              >
+                Delete connection
+              </button>
+            )}
           </>
         )}
       </div>

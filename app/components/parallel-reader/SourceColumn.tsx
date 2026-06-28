@@ -1,56 +1,59 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Alignment, Segment } from "@/lib/types";
+import type { Segment } from "@/lib/types";
+import type { SegmentGroupInfo } from "@/lib/alignments";
 import { Stanza } from "@/app/components/poetry/Stanza";
 import { cn } from "@/lib/utils";
 
-type SourceColumnProps = {
+type ColumnProps = {
   segments: Segment[];
-  alignments: Alignment[];
-  highlightedIds: Set<string>;
-  selectedId?: string | null;
-  linkSourceId?: string | null;
+  side: "source" | "target";
+  groupMap: Map<string, SegmentGroupInfo>;
+  focusedIds: Set<string>;
+  dimUnfocused: boolean;
+  stagedIds: Set<string>;
   mode?: "read" | "align" | "comment";
   languageLabel: string;
   scrollRef?: React.RefObject<HTMLDivElement>;
-  onHover?: (segmentId: string | null) => void;
   onLineClick?: (segment: Segment) => void;
   registerRef?: (segmentId: string, element: HTMLElement | null) => void;
   className?: string;
 };
 
-export function SourceColumn({
+function PoemColumn({
   segments,
-  alignments: _alignments,
-  highlightedIds,
-  selectedId,
-  linkSourceId,
+  side,
+  groupMap,
+  focusedIds,
+  dimUnfocused,
+  stagedIds,
   mode = "read",
   languageLabel,
   scrollRef,
-  onHover,
   onLineClick,
   registerRef,
   className,
-}: SourceColumnProps) {
+}: ColumnProps) {
   const lines = useMemo(
     () =>
       segments
-        .filter((segment) => segment.side === "source" && segment.kind === "line")
+        .filter((segment) => segment.side === side && segment.kind === "line")
         .sort((a, b) => a.order - b.order),
-    [segments]
+    [segments, side]
   );
 
-  const stanzaId = segments.find(
-    (segment) => segment.side === "source" && segment.kind === "stanza"
-  )?.id ?? "source-stanza";
+  const stanzaId =
+    segments.find((segment) => segment.side === side && segment.kind === "stanza")?.id ??
+    `${side}-stanza`;
+
+  const heading = side === "source" ? "Original" : "Translation";
 
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
       <div className="mb-4 flex items-center justify-between">
         <span className="text-xs font-medium uppercase tracking-[0.2em] text-muted">
-          Original
+          {heading}
         </span>
         <span className="rounded-full bg-paper-elevated px-2.5 py-0.5 text-xs text-muted dark:bg-ink-elevated">
           {languageLabel}
@@ -58,16 +61,19 @@ export function SourceColumn({
       </div>
       <div
         ref={scrollRef}
-        className="min-h-0 flex-1 overflow-y-auto scroll-smooth pr-2"
+        className={cn(
+          "min-h-0 flex-1 overflow-y-auto scroll-smooth",
+          side === "source" ? "pr-1" : "pl-1"
+        )}
       >
         <Stanza
           stanzaId={stanzaId}
           lines={lines}
-          highlightedIds={highlightedIds}
-          selectedId={selectedId}
-          linkSourceId={linkSourceId}
+          groupMap={groupMap}
+          focusedIds={focusedIds}
+          dimUnfocused={dimUnfocused}
+          stagedIds={stagedIds}
           mode={mode}
-          onHover={onHover}
           onLineClick={onLineClick}
           registerRef={registerRef}
         />
@@ -76,58 +82,10 @@ export function SourceColumn({
   );
 }
 
-export function TargetColumn({
-  segments,
-  alignments: _alignments,
-  highlightedIds,
-  selectedId,
-  linkSourceId,
-  mode = "read",
-  languageLabel,
-  scrollRef,
-  onHover,
-  onLineClick,
-  registerRef,
-  className,
-}: SourceColumnProps) {
-  const lines = useMemo(
-    () =>
-      segments
-        .filter((segment) => segment.side === "target" && segment.kind === "line")
-        .sort((a, b) => a.order - b.order),
-    [segments]
-  );
+export function SourceColumn(props: Omit<ColumnProps, "side">) {
+  return <PoemColumn {...props} side="source" />;
+}
 
-  const stanzaId = segments.find(
-    (segment) => segment.side === "target" && segment.kind === "stanza"
-  )?.id ?? "target-stanza";
-
-  return (
-    <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
-      <div className="mb-4 flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-[0.2em] text-muted">
-          Translation
-        </span>
-        <span className="rounded-full bg-paper-elevated px-2.5 py-0.5 text-xs text-muted dark:bg-ink-elevated">
-          {languageLabel}
-        </span>
-      </div>
-      <div
-        ref={scrollRef}
-        className="min-h-0 flex-1 overflow-y-auto scroll-smooth pl-2"
-      >
-        <Stanza
-          stanzaId={stanzaId}
-          lines={lines}
-          highlightedIds={highlightedIds}
-          selectedId={selectedId}
-          linkSourceId={linkSourceId}
-          mode={mode}
-          onHover={onHover}
-          onLineClick={onLineClick}
-          registerRef={registerRef}
-        />
-      </div>
-    </div>
-  );
+export function TargetColumn(props: Omit<ColumnProps, "side">) {
+  return <PoemColumn {...props} side="target" />;
 }

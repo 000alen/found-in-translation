@@ -14,7 +14,7 @@ export default async function Page() {
             Bilingual poetry editions
           </p>
           <h1 className="title text-4xl font-medium tracking-tight text-ink dark:text-paper md:text-6xl">
-            Read poems in two languages, linked line by line.
+            Read poems in two languages, connected passage by passage.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
             An elegant reading studio for parallel translations — hover to trace
@@ -47,8 +47,8 @@ export default async function Page() {
             body: "Original and translation presented in balanced columns with synced scrolling and poetry-native typography.",
           },
           {
-            title: "Visual alignment",
-            body: "Curved links connect corresponding lines — including cross-order mappings when translations diverge.",
+            title: "Passage connections",
+            body: "Click any line to see how it maps across languages — including many-to-many and reordered translations.",
           },
           {
             title: "Threaded comments",
