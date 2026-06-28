@@ -1,42 +1,64 @@
-# Portfolio Blog Starter
+# Found in Translation
 
-This is a porfolio site template complete with a blog. Includes:
+A polished reading studio for bilingual poetry editions — side-by-side translations with linked lines, alignment tools, and Google Docs-style comments.
 
-- MDX and Markdown support
-- Optimized for SEO (sitemap, robots, JSON-LD schema)
-- RSS Feed
-- Dynamic OG images
-- Syntax highlighting
-- Tailwind v4
-- Vercel Speed Insights / Web Analytics
-- Geist font
+## Features
 
-## Demo
+- **Parallel reader** — original and translation in balanced columns with synced scrolling
+- **Visual alignment links** — SVG curves connect corresponding lines on hover
+- **Alignment studio** — create, save, and delete line-to-line links
+- **Threaded comments** — select text in comment mode and discuss in a margin panel
+- **Read mode** — distraction-free reading with keyboard shortcuts
+- **Optional database** — Neon Postgres via Drizzle when `DATABASE_URL` is set; seed data works out of the box
 
-https://portfolio-blog-starter.vercel.app
-
-## How to Use
-
-You can choose from one of the following two methods to use this repository:
-
-### One-Click Deploy
-
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=vercel-examples):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/solutions/blog&project-name=blog&repository-name=blog)
-
-### Clone and Deploy
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [pnpm](https://pnpm.io/installation) to bootstrap the example:
+## Getting started
 
 ```bash
-pnpm create next-app --example https://github.com/vercel/examples/tree/main/solutions/blog blog
-```
-
-Then, run Next.js in development mode:
-
-```bash
+pnpm install
 pnpm dev
 ```
 
-Deploy it to the cloud with [Vercel](https://vercel.com/templates) ([Documentation](https://nextjs.org/docs/app/building-your-application/deploying)).
+Open [http://localhost:3000](http://localhost:3000) and navigate to **Editions** → **Shakespeare's Sonnets** → **Sonnet XVIII**.
+
+## Environment variables
+
+```bash
+# Optional — enables Postgres persistence for alignments
+DATABASE_URL=postgresql://...
+
+# Optional — enables Liveblocks real-time comments
+NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY=pk_...
+LIVEBLOCKS_SECRET_KEY=sk_...
+
+# Optional — used for sitemap/metadata
+NEXT_PUBLIC_BASE_URL=https://your-domain.com
+```
+
+Without `DATABASE_URL`, the app serves seeded content from `lib/data/seed.ts`. Comments are stored in the browser via `localStorage` unless Liveblocks is configured.
+
+## Database setup
+
+```bash
+pnpm db:push
+pnpm db:seed
+```
+
+## Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `R` | Toggle read mode |
+| `A` | Align mode |
+| `C` | Comment mode |
+| `L` | Toggle link visibility |
+| `?` | Show shortcuts |
+| `Esc` | Cancel current action |
+
+## Stack
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS v4
+- Drizzle ORM + Neon Postgres (optional)
+- Framer Motion
+- Liveblocks (optional)

@@ -1,8 +1,35 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-paper: #faf8f5;
+  --color-paper-elevated: #fffdf9;
+  --color-ink: #1c1917;
+  --color-ink-elevated: #292524;
+  --color-muted: #78716c;
+  --color-border: #e7e5e4;
+  --color-accent: #c26a4a;
+  --color-link-source: #8b5e3c;
+  --color-link-muted: #d6d3d1;
+  --font-poetry: var(--font-poetry), 'Source Serif 4', Georgia, serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-paper: #0c0a09;
+    --color-paper-elevated: #1c1917;
+    --color-ink: #fafaf9;
+    --color-ink-elevated: #292524;
+    --color-muted: #a8a29e;
+    --color-border: #292524;
+    --color-accent: #e08b6d;
+    --color-link-source: #d4a574;
+    --color-link-muted: #44403c;
+  }
+}
+
 ::selection {
-  background-color: #47a3f3;
-  color: #fefefe;
+  background-color: color-mix(in oklab, var(--color-accent) 35%, white);
+  color: var(--color-ink);
 }
 
 :root {
@@ -31,6 +58,22 @@
 
 html {
   min-width: 360px;
+}
+
+body {
+  font-feature-settings: 'kern' 1, 'liga' 1;
+}
+
+.font-poetry {
+  font-family: var(--font-poetry);
+}
+
+.reader-read-mode .reader-layout {
+  max-width: none;
+}
+
+.reader-read-mode main > section {
+  padding-top: 2rem;
 }
 
 .prose .anchor {
@@ -79,7 +122,6 @@ html {
 }
 
 .prose img {
-  /* Don't apply styles to next/image */
   @apply m-0;
 }
 
@@ -116,7 +158,6 @@ html {
 }
 
 .prose > :first-child {
-  /* Override removing top margin, causing layout shift */
   margin-top: 1.25em !important;
   margin-bottom: 1.25em !important;
 }
@@ -126,13 +167,13 @@ pre::-webkit-scrollbar {
 }
 
 pre {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* Remove Safari input shadow on mobile */
 input[type='text'],
-input[type='email'] {
+input[type='email'],
+textarea {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -147,4 +188,8 @@ table {
 
 .title {
   text-wrap: balance;
+}
+
+.poem-stanza + .poem-stanza {
+  margin-top: 2rem;
 }

@@ -1,37 +1,33 @@
 import Link from 'next/link'
 
-const navItems = {
-  '/': {
-    name: 'home',
-  },
-  '/blog': {
-    name: 'blog',
-  }
-}
+const navItems = [
+  { path: '/', name: 'Home' },
+  { path: '/books', name: 'Editions' },
+  { path: '/blog', name: 'Blog' },
+]
 
 export function Navbar() {
   return (
-    <aside className="-ml-[8px] mb-16 tracking-tight">
-      <div className="lg:sticky lg:top-20">
-        <nav
-          className="flex flex-row items-start relative px-0 pb-0 fade md:overflow-auto scroll-pr-6 md:relative"
-          id="nav"
-        >
-          <div className="flex flex-row space-x-0 pr-10">
-            {Object.entries(navItems).map(([path, { name }]) => {
-              return (
-                <Link
-                  key={path}
-                  href={path}
-                  className="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 m-1"
-                >
-                  {name}
-                </Link>
-              )
-            })}
-          </div>
+    <header className="mb-10 tracking-tight">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <Link href="/" className="group">
+          <p className="text-xs uppercase tracking-[0.28em] text-muted">Found in Translation</p>
+          <p className="text-lg font-medium text-ink transition group-hover:text-accent dark:text-paper">
+            Poetry reading studio
+          </p>
+        </Link>
+        <nav className="flex flex-wrap items-center gap-1" id="nav">
+          {navItems.map(({ path, name }) => (
+            <Link
+              key={path}
+              href={path}
+              className="rounded-full px-3 py-1.5 text-sm text-muted transition hover:bg-paper-elevated hover:text-ink dark:hover:bg-ink-elevated dark:hover:text-paper"
+            >
+              {name}
+            </Link>
+          ))}
         </nav>
       </div>
-    </aside>
+    </header>
   )
 }
