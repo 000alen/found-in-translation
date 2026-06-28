@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listBooks } from "@/lib/data/repository";
+import { LanguagePair } from "@/app/components/LanguageLabel";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
@@ -37,7 +38,7 @@ export default async function BooksPage() {
             />
             <div className="p-5">
               <p className="text-[10px] uppercase tracking-[0.2em] text-muted">
-                {book.sourceLanguage.toUpperCase()} → {book.targetLanguage.toUpperCase()}
+                <LanguagePair source={book.sourceLanguage} target={book.targetLanguage} />
               </p>
               <h2 className="mt-1.5 text-xl font-medium text-ink group-hover:text-accent">
                 {book.title}

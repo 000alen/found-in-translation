@@ -30,8 +30,8 @@
   --color-wheat-deep: #8a7348;
   --color-ink-faint: #c4bdb4;
 
-  --font-poetry: var(--font-poetry), 'Source Serif 4', Georgia, serif;
-  --font-prose: var(--font-prose), 'Source Serif 4', Georgia, serif;
+  --font-poetry: var(--font-literary), 'Source Serif 4', 'Noto Serif', Georgia, serif;
+  --font-prose: var(--font-literary), 'Source Serif 4', 'Noto Serif', Georgia, serif;
 }
 
 /* ─── Dark theme ─────────────────────────────────────────────────── */
@@ -90,8 +90,24 @@ body {
 }
 
 .font-poetry,
-.font-prose {
-  font-family: var(--font-poetry);
+.font-prose,
+.text-body {
+  font-family: var(--font-prose);
+  font-variant-ligatures: common-ligatures;
+  text-rendering: optimizeLegibility;
+}
+
+/* Cyrillic typography — Ukrainian */
+.text-cyrillic {
+  font-family: var(--font-prose);
+  font-feature-settings: 'kern' 1, 'liga' 1, 'locl' 1;
+  letter-spacing: 0.01em;
+}
+
+/* German typography — umlauts via latin-ext subset */
+.text-latin[lang='de'] {
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  hyphens: auto;
 }
 
 /* Legacy token aliases */

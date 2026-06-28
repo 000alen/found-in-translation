@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ParallelReader } from "@/app/components/parallel-reader/ParallelReader";
+import { LanguagePair } from "@/app/components/LanguageLabel";
 import { getTextEdition } from "@/lib/data/repository";
 
 type PageProps = {
@@ -38,8 +39,11 @@ export default async function WorkPage({ params }: PageProps) {
         <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
-              {typeLabel} · {edition.book.sourceLanguage.toUpperCase()} /{" "}
-              {edition.book.targetLanguage.toUpperCase()}
+              {typeLabel} ·{" "}
+              <LanguagePair
+                source={edition.book.sourceLanguage}
+                target={edition.book.targetLanguage}
+              />
             </p>
             <h1 className="title mt-1 text-2xl font-medium tracking-tight text-ink md:text-3xl">
               {work.title}

@@ -325,7 +325,7 @@ export function ParallelReader({
               dimUnfocused={showConnections}
               stagedIds={stagedSet}
               mode={mode}
-              languageLabel={edition.book.sourceLanguage.toUpperCase()}
+              languageCode={edition.book.sourceLanguage}
               scrollRef={leftScrollRef}
               onAnchorClick={handleAnchorClick}
               registerRef={registerRef}
@@ -350,7 +350,7 @@ export function ParallelReader({
               dimUnfocused={showConnections}
               stagedIds={stagedSet}
               mode={mode}
-              languageLabel={edition.book.targetLanguage.toUpperCase()}
+              languageCode={edition.book.targetLanguage}
               scrollRef={rightScrollRef}
               onAnchorClick={handleAnchorClick}
               registerRef={registerRef}

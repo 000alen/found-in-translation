@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBookBySlug, listWorksForBook } from "@/lib/data/repository";
+import { LanguagePair } from "@/app/components/LanguageLabel";
 
 type PageProps = {
   params: Promise<{ bookSlug: string }>;
@@ -31,7 +32,7 @@ export default async function BookPage({ params }: PageProps) {
 
       <div className="mt-5">
         <p className="text-[11px] uppercase tracking-[0.25em] text-muted">
-          {book.sourceLanguage.toUpperCase()} → {book.targetLanguage.toUpperCase()}
+          <LanguagePair source={book.sourceLanguage} target={book.targetLanguage} />
         </p>
         <h1 className="title mt-1 text-3xl font-medium tracking-tight text-ink">
           {book.title}

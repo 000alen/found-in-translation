@@ -1,5 +1,8 @@
 export type ContentType = "poetry" | "prose";
 
+/** ISO 639-1 codes used in editions — see lib/languages.ts for metadata */
+export type LanguageCode = "en" | "es" | "de" | "uk";
+
 export type SegmentKind = "title" | "stanza" | "line" | "paragraph" | "span" | "note";
 
 export type SegmentSide = "source" | "target";
@@ -23,8 +26,8 @@ export type Book = {
   title: string;
   subtitle?: string;
   authors: Person[];
-  sourceLanguage: string;
-  targetLanguage: string;
+  sourceLanguage: LanguageCode | string;
+  targetLanguage: LanguageCode | string;
   description: string;
   coverGradient?: string;
   publishedAt?: string;

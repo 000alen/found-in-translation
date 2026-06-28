@@ -3,24 +3,16 @@ import { normalizeAlignment } from "../anchors";
 import { getDb } from "../db";
 import { alignments, books, poems, segments } from "../db/schema";
 import {
-  getSeedBook,
-  getSeedEdition,
-  getSeedWorksForBook,
-  seedAlignments,
-  seedBooks,
-  seedSegments,
-  seedWorks,
-} from "./seed";
-import { getProseEditionBySlug, proseBook, proseSegments, proseWork } from "./prose-seed";
+  allSeedBooks,
+  allSeedWorks,
+  getStaticEdition,
+  getStaticWorksForBook,
+} from "./registry";
 import { eq } from "drizzle-orm";
 
 function parseJsonArray<T>(value: string): T[] {
   return JSON.parse(value) as T[];
 }
-
-const allSeedBooks = [...seedBooks, proseBook];
-const allSeedWorks = [...seedWorks, proseWork];
-const allSeedSegments = [...seedSegments, ...proseSegments];
 
 function normalizeEditionAlignments(edition: TextEdition): Alignment[] {
   return edition.alignments.map((alignment) =>
@@ -76,9 +68,7 @@ export async function listWorksForBook(bookSlug: string): Promise<TextWork[]> {
   if (!book) return [];
 
   const db = getDb();
-  if (!db) {
-    return allSeedWorks.filter((work) => work.bookId === book.id);
-  }
+  if (!db) return getStaticWorksForBook(bookSlug);
 
   const rows = await db
     .select()
@@ -86,9 +76,7 @@ export async function listWorksForBook(bookSlug: string): Promise<TextWork[]> {
     .where(eq(poems.bookId, book.id))
     .orderBy(poems.order);
 
-  if (rows.length === 0) {
-    return allSeedWorks.filter((work) => work.bookId === book.id);
-  }
+  if (rows.length === 0) return getStaticWorksForBook(bookSlug);
 
   return rows.map((row) => ({
     id: row.id,
@@ -106,9 +94,7 @@ export async function getTextEdition(
   bookSlug: string,
   workSlug: string
 ): Promise<TextEdition | null> {
-  const poetry = getSeedEdition(workSlug);
-  const prose = getProseEditionBySlug(workSlug);
-  const fallback = poetry ?? prose;
+  const fallback = getStaticEdition(bookSlug, workSlug);
   if (!fallback) return null;
 
   const book = await getBookBySlug(bookSlug);

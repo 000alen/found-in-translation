@@ -1,10 +1,13 @@
 import type { Segment } from "@/lib/types";
 import type { AnchorGroupInfo } from "@/lib/alignments";
+import { getLanguage, scriptClassFor } from "@/lib/languages";
 import { splitParagraphWithSpans } from "@/lib/anchors";
 import { AlignedMark } from "./AlignedMark";
+import { cn } from "@/lib/utils";
 
 type ProseParagraphProps = {
   segment: Segment;
+  languageCode: string;
   spans: Segment[];
   groupMap: Map<string, AnchorGroupInfo>;
   focusedIds: Set<string>;
@@ -17,6 +20,7 @@ type ProseParagraphProps = {
 
 export function ProseParagraph({
   segment,
+  languageCode,
   spans,
   groupMap,
   focusedIds,
@@ -28,10 +32,13 @@ export function ProseParagraph({
 }: ProseParagraphProps) {
   const parts = splitParagraphWithSpans(segment.text, spans);
   const hasFocus = focusedIds.size > 0;
+  const lang = getLanguage(languageCode);
 
   return (
     <p
-      className="text-body mb-6 last:mb-0"
+      className={cn("text-body mb-6 last:mb-0", scriptClassFor(languageCode))}
+      lang={lang.bcp47}
+      dir={lang.direction}
       data-segment-id={segment.id}
     >
       {parts.map((part, index) => {

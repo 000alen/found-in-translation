@@ -3,6 +3,8 @@
 import { useMemo } from "react";
 import type { ContentType, Segment } from "@/lib/types";
 import type { AnchorGroupInfo } from "@/lib/alignments";
+import { getLanguage, scriptClassFor } from "@/lib/languages";
+import { LanguageLabel } from "@/app/components/LanguageLabel";
 import { PoemLine } from "@/app/components/poetry/PoemLine";
 import { ProseParagraph } from "@/app/components/text/ProseParagraph";
 import { cn } from "@/lib/utils";
@@ -11,12 +13,12 @@ type TextColumnProps = {
   segments: Segment[];
   side: "source" | "target";
   contentType: ContentType;
+  languageCode: string;
   groupMap: Map<string, AnchorGroupInfo>;
   focusedIds: Set<string>;
   dimUnfocused: boolean;
   stagedIds: Set<string>;
   mode?: "read" | "align" | "comment";
-  languageLabel: string;
   scrollRef?: React.RefObject<HTMLDivElement>;
   onAnchorClick?: (anchorId: string) => void;
   registerRef?: (anchorId: string, element: HTMLElement | null) => void;
@@ -27,17 +29,20 @@ export function TextColumn({
   segments,
   side,
   contentType,
+  languageCode,
   groupMap,
   focusedIds,
   dimUnfocused,
   stagedIds,
   mode = "read",
-  languageLabel,
   scrollRef,
   onAnchorClick,
   registerRef,
   className,
 }: TextColumnProps) {
+  const lang = getLanguage(languageCode);
+  const scriptClass = scriptClassFor(languageCode);
+
   const paragraphs = useMemo(
     () => segments.filter((s) => s.side === side && s.kind === "paragraph"),
     [segments, side]
@@ -67,18 +72,27 @@ export function TextColumn({
         <span className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted">
           {heading}
         </span>
-        <span className="text-[11px] text-muted">{languageLabel}</span>
+        <LanguageLabel
+          code={languageCode}
+          className="text-[11px] text-muted"
+        />
       </div>
 
       <div
         ref={scrollRef}
-        className="min-h-0 flex-1 overflow-y-auto scroll-smooth"
+        lang={lang.bcp47}
+        dir={lang.direction}
+        className={cn(
+          "min-h-0 flex-1 overflow-y-auto scroll-smooth",
+          scriptClass
+        )}
       >
         {contentType === "prose" ? (
           paragraphs.map((paragraph) => (
             <ProseParagraph
               key={paragraph.id}
               segment={paragraph}
+              languageCode={languageCode}
               spans={spansByParent.get(paragraph.id) ?? []}
               groupMap={groupMap}
               focusedIds={focusedIds}
@@ -101,6 +115,7 @@ export function TextColumn({
                 <PoemLine
                   key={line.id}
                   segment={line}
+                  languageCode={languageCode}
                   group={group}
                   isFocused={isFocused}
                   isDimmed={isDimmed}

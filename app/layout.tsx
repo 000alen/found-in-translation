@@ -2,6 +2,7 @@ import './global.css'
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import { literaryFont } from './fonts'
 import { CommentsProvider } from './components/comments/CommentsProvider'
 import { ThemeProvider } from './components/theme/ThemeProvider'
 import { Navbar } from './components/nav'
@@ -51,7 +52,7 @@ export default function RootLayout({
       lang="en"
       data-theme="light"
       suppressHydrationWarning
-      className={cx(GeistSans.variable, GeistMono.variable)}
+      className={cx(GeistSans.variable, GeistMono.variable, literaryFont.variable)}
     >
       <body className="min-h-screen bg-paper text-ink antialiased">
         <ThemeProvider>

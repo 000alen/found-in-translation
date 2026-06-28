@@ -3,8 +3,12 @@ import { listBooks } from "@/lib/data/repository";
 
 export default async function Page() {
   const books = await listBooks();
-  const poetry = books.find((b) => b.slug === "shakespeare-sonnets");
-  const prose = books.find((b) => b.slug === "borges-library");
+  const featured = [
+    { slug: "shakespeare-sonnets", work: "sonnet-18", label: "Sonnet XVIII" },
+    { slug: "borges-library", work: "opening", label: "Library of Babel" },
+    { slug: "shevchenko-zapovit", work: "zapovit", label: "Заповіт" },
+    { slug: "rilke-herbsttag", work: "herbsttag", label: "Herbsttag" },
+  ].filter((item) => books.some((b) => b.slug === item.slug));
 
   return (
     <section className="pb-16">
@@ -12,14 +16,14 @@ export default async function Page() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(181,137,110,0.08),transparent_55%)]" />
         <div className="relative max-w-2xl">
           <p className="mb-3 text-[11px] uppercase tracking-[0.3em] text-muted">
-            Bilingual reading studio
+            Multilingual reading studio
           </p>
           <h1 className="title text-3xl font-medium tracking-tight text-ink md:text-5xl">
-            Poetry and prose, read in parallel — phrase by phrase.
+            Poetry and prose in English, Spanish, German, and Ukrainian.
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">
-            A quiet space for translation. Click a line or a phrase mid-paragraph to
-            trace how it travels across languages. Leave notes in the margin.
+            Read in parallel — phrase by phrase, line by line. Full Cyrillic support for
+            Ukrainian. Click any aligned passage to trace how it travels across languages.
           </p>
           <div className="mt-7 flex flex-wrap gap-2">
             <Link
@@ -28,22 +32,15 @@ export default async function Page() {
             >
               Browse editions
             </Link>
-            {poetry && (
+            {featured.map((item) => (
               <Link
-                href={`/books/${poetry.slug}/sonnet-18`}
+                key={item.slug}
+                href={`/books/${item.slug}/${item.work}`}
                 className="rounded-full border border-border px-4 py-2.5 text-sm text-ink transition hover:bg-surface-2"
               >
-                Sonnet XVIII
+                {item.label}
               </Link>
-            )}
-            {prose && (
-              <Link
-                href={`/books/${prose.slug}/opening`}
-                className="rounded-full border border-border px-4 py-2.5 text-sm text-ink transition hover:bg-surface-2"
-              >
-                Library of Babel
-              </Link>
-            )}
+            ))}
           </div>
         </div>
       </div>
@@ -51,16 +48,16 @@ export default async function Page() {
       <div className="mt-12 grid gap-4 md:grid-cols-3">
         {[
           {
+            title: "Four languages",
+            body: "English, Español, Deutsch, Українська — with native script rendering and proper lang attributes.",
+          },
+          {
             title: "Phrase-level links",
-            body: "A sentence need not fill a line. Mid-paragraph phrases connect to fragments on the other side.",
+            body: "Mid-paragraph phrases connect to fragments on the other side, including Cyrillic spans.",
           },
           {
             title: "Triangle traces",
-            body: "Click any aligned passage to draw quiet wedges between the two columns — even sub-line spans.",
-          },
-          {
-            title: "Margin notes",
-            body: "Select text to start a thread. Resolve when the conversation is complete.",
+            body: "Click any aligned passage to draw quiet wedges between the two columns.",
           },
         ].map((feature) => (
           <div

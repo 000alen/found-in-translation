@@ -1,9 +1,11 @@
 import type { Segment } from "@/lib/types";
 import type { SegmentGroupInfo } from "@/lib/alignments";
+import { getLanguage, scriptClassFor } from "@/lib/languages";
 import { cn } from "@/lib/utils";
 
 type PoemLineProps = {
   segment: Segment;
+  languageCode?: string;
   group?: SegmentGroupInfo | null;
   isFocused?: boolean;
   isDimmed?: boolean;
@@ -80,6 +82,7 @@ function LineContent({
 
 export function PoemLine({
   segment,
+  languageCode,
   group,
   isFocused = false,
   isDimmed = false,
@@ -90,7 +93,11 @@ export function PoemLine({
 }: PoemLineProps) {
   if (segment.kind !== "line") return null;
 
-  const className = lineClass({ mode, isDimmed, isFocused, isStaged, group });
+  const lang = getLanguage(languageCode ?? segment.language);
+  const className = cn(
+    lineClass({ mode, isDimmed, isFocused, isStaged, group }),
+    scriptClassFor(lang.bcp47)
+  );
 
   if (mode === "comment") {
     return (
@@ -98,6 +105,8 @@ export function PoemLine({
         ref={(element) => registerRef?.(segment.id, element)}
         data-segment-id={segment.id}
         data-anchor-id={segment.id}
+        lang={lang.bcp47}
+        dir={lang.direction}
         className={className}
       >
         <LineContent segment={segment} group={group} isFocused={isFocused} />
@@ -111,6 +120,8 @@ export function PoemLine({
       ref={(element) => registerRef?.(segment.id, element)}
       data-segment-id={segment.id}
       data-anchor-id={segment.id}
+      lang={lang.bcp47}
+      dir={lang.direction}
       onClick={() => onClick?.(segment)}
       className={className}
     >
