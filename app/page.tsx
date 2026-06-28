@@ -3,64 +3,72 @@ import { listBooks } from "@/lib/data/repository";
 
 export default async function Page() {
   const books = await listBooks();
-  const featured = books[0];
+  const poetry = books.find((b) => b.slug === "shakespeare-sonnets");
+  const prose = books.find((b) => b.slug === "borges-library");
 
   return (
     <section className="pb-16">
-      <div className="relative overflow-hidden rounded-[2rem] border border-border bg-gradient-to-br from-amber-50 via-paper to-rose-50 px-6 py-14 dark:from-ink-elevated dark:via-ink dark:to-ink-elevated md:px-12 md:py-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(194,106,74,0.12),transparent_45%)]" />
-        <div className="relative max-w-3xl">
-          <p className="mb-4 text-sm uppercase tracking-[0.28em] text-muted">
-            Bilingual poetry editions
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-surface px-6 py-14 md:px-12 md:py-18">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(181,137,110,0.08),transparent_55%)]" />
+        <div className="relative max-w-2xl">
+          <p className="mb-3 text-[11px] uppercase tracking-[0.3em] text-muted">
+            Bilingual reading studio
           </p>
-          <h1 className="title text-4xl font-medium tracking-tight text-ink dark:text-paper md:text-6xl">
-            Read poems in two languages, connected passage by passage.
+          <h1 className="title text-3xl font-medium tracking-tight text-ink md:text-5xl">
+            Poetry and prose, read in parallel — phrase by phrase.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-            An elegant reading studio for parallel translations — hover to trace
-            correspondences, align lines in the studio, and leave margin comments
-            like Google Docs.
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">
+            A quiet space for translation. Click a line or a phrase mid-paragraph to
+            trace how it travels across languages. Leave notes in the margin.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-wrap gap-2">
             <Link
               href="/books"
-              className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:opacity-90"
+              className="rounded-full bg-accent px-4 py-2.5 text-sm text-white transition hover:opacity-90"
             >
               Browse editions
             </Link>
-            {featured && (
+            {poetry && (
               <Link
-                href={`/books/${featured.slug}/sonnet-18`}
-                className="rounded-full border border-border bg-paper/70 px-5 py-3 text-sm text-ink backdrop-blur-sm transition hover:bg-paper dark:bg-ink/50 dark:text-paper"
+                href={`/books/${poetry.slug}/sonnet-18`}
+                className="rounded-full border border-border px-4 py-2.5 text-sm text-ink transition hover:bg-surface-2"
               >
-                Read Sonnet XVIII
+                Sonnet XVIII
+              </Link>
+            )}
+            {prose && (
+              <Link
+                href={`/books/${prose.slug}/opening`}
+                className="rounded-full border border-border px-4 py-2.5 text-sm text-ink transition hover:bg-surface-2"
+              >
+                Library of Babel
               </Link>
             )}
           </div>
         </div>
       </div>
 
-      <div className="mt-16 grid gap-6 md:grid-cols-3">
+      <div className="mt-12 grid gap-4 md:grid-cols-3">
         {[
           {
-            title: "Side-by-side reading",
-            body: "Original and translation presented in balanced columns with synced scrolling and poetry-native typography.",
+            title: "Phrase-level links",
+            body: "A sentence need not fill a line. Mid-paragraph phrases connect to fragments on the other side.",
           },
           {
-            title: "Passage connections",
-            body: "Click any line to see how it maps across languages — including many-to-many and reordered translations.",
+            title: "Triangle traces",
+            body: "Click any aligned passage to draw quiet wedges between the two columns — even sub-line spans.",
           },
           {
-            title: "Threaded comments",
-            body: "Select any phrase to start a discussion. Resolve threads when the conversation is complete.",
+            title: "Margin notes",
+            body: "Select text to start a thread. Resolve when the conversation is complete.",
           },
         ].map((feature) => (
           <div
             key={feature.title}
-            className="rounded-3xl border border-border bg-paper-elevated p-6 dark:bg-ink-elevated"
+            className="rounded-xl border border-border bg-surface p-5"
           >
-            <h2 className="text-lg font-medium text-ink dark:text-paper">{feature.title}</h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted">{feature.body}</p>
+            <h2 className="text-base font-medium text-ink">{feature.title}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{feature.body}</p>
           </div>
         ))}
       </div>

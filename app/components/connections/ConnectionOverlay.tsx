@@ -41,7 +41,7 @@ export function ConnectionOverlay({
 
   return (
     <svg
-      className="pointer-events-none absolute inset-0 z-[5] overflow-visible"
+      className="pointer-events-none absolute inset-0 z-10 overflow-visible"
       aria-hidden
       width="100%"
       height="100%"

@@ -1,59 +1,79 @@
 @import 'tailwindcss';
 
+/* ─── Light theme (default) ───────────────────────────────────────── */
 @theme {
-  --color-paper: #faf8f5;
-  --color-paper-elevated: #fffdf9;
-  --color-ink: #1c1917;
-  --color-ink-elevated: #292524;
-  --color-muted: #78716c;
-  --color-border: #e7e5e4;
-  --color-accent: #c26a4a;
-  --color-link-source: #8b5e3c;
-  --color-link-muted: #d6d3d1;
+  --color-paper: #f7f5f0;
+  --color-surface: #fdfcf9;
+  --color-surface-2: #f0ede6;
+  --color-ink: #2c2825;
+  --color-ink-soft: #4a4541;
+  --color-muted: #8a837a;
+  --color-border: #e8e4dc;
+  --color-border-soft: #f0ede6;
+  --color-accent: #b5896e;
+  --color-accent-soft: #f5ebe3;
+
+  --color-sage: #7a8c71;
+  --color-sage-soft: #eef2eb;
+  --color-sage-deep: #5a6b52;
+  --color-clay: #b5896e;
+  --color-clay-soft: #f5ebe3;
+  --color-clay-deep: #8a6548;
+  --color-mist: #7d94aa;
+  --color-mist-soft: #edf1f5;
+  --color-mist-deep: #5a7085;
+  --color-rose-mark: #c48585;
+  --color-rose-soft: #f8eeee;
+  --color-rose-deep: #9a6060;
+  --color-wheat: #c4a86c;
+  --color-wheat-soft: #f8f3e8;
+  --color-wheat-deep: #8a7348;
+  --color-ink-faint: #c4bdb4;
+
   --font-poetry: var(--font-poetry), 'Source Serif 4', Georgia, serif;
+  --font-prose: var(--font-prose), 'Source Serif 4', Georgia, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  @theme {
-    --color-paper: #0c0a09;
-    --color-paper-elevated: #1c1917;
-    --color-ink: #fafaf9;
-    --color-ink-elevated: #292524;
-    --color-muted: #a8a29e;
-    --color-border: #292524;
-    --color-accent: #e08b6d;
-    --color-link-source: #d4a574;
-    --color-link-muted: #44403c;
-  }
+/* ─── Dark theme ─────────────────────────────────────────────────── */
+[data-theme='dark'] {
+  --color-paper: #141210;
+  --color-surface: #1c1917;
+  --color-surface-2: #252220;
+  --color-ink: #f0ebe3;
+  --color-ink-soft: #c9c2b8;
+  --color-muted: #8a837a;
+  --color-border: #2e2a27;
+  --color-border-soft: #252220;
+  --color-accent: #d4a88a;
+  --color-accent-soft: #2a221c;
+
+  --color-sage: #9aad92;
+  --color-sage-soft: #1e241c;
+  --color-sage-deep: #b8c9b0;
+  --color-clay: #d4a88a;
+  --color-clay-soft: #2a221c;
+  --color-clay-deep: #e8c4a8;
+  --color-mist: #9ab0c4;
+  --color-mist-soft: #1a2028;
+  --color-mist-deep: #b8cce0;
+  --color-rose-mark: #d4a0a0;
+  --color-rose-soft: #281c1c;
+  --color-rose-deep: #e8b8b8;
+  --color-wheat: #d4bc88;
+  --color-wheat-soft: #28221a;
+  --color-wheat-deep: #e8d4a8;
+  --color-ink-faint: #4a4541;
+
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
 }
 
 ::selection {
-  background-color: color-mix(in oklab, var(--color-accent) 35%, white);
+  background-color: color-mix(in oklab, var(--color-accent) 28%, var(--color-paper));
   color: var(--color-ink);
-}
-
-:root {
-  --sh-class: #2d5e9d;
-  --sh-identifier: #354150;
-  --sh-sign: #8996a3;
-  --sh-string: #007f7a;
-  --sh-keyword: #e02518;
-  --sh-comment: #a19595;
-  --sh-jsxliterals: #6266d1;
-  --sh-property: #e25a1c;
-  --sh-entity: #e25a1c;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --sh-class: #4c97f8;
-    --sh-identifier: white;
-    --sh-keyword: #f47067;
-    --sh-string: #0fa295;
-  }
-  html {
-    color-scheme: dark;
-  }
 }
 
 html {
@@ -62,10 +82,25 @@ html {
 
 body {
   font-feature-settings: 'kern' 1, 'liga' 1;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, color-mix(in oklab, var(--color-accent) 6%, transparent), transparent 50%),
+    radial-gradient(ellipse at 80% 100%, color-mix(in oklab, var(--color-sage) 5%, transparent), transparent 45%);
 }
 
-.font-poetry {
+.font-poetry,
+.font-prose {
   font-family: var(--font-poetry);
+}
+
+/* Legacy token aliases */
+.bg-paper-elevated {
+  background-color: var(--color-surface);
+}
+
+.dark\:bg-ink-elevated:is([data-theme='dark'] *) {
+  background-color: var(--color-surface-2);
 }
 
 .reader-read-mode .reader-layout {
@@ -76,9 +111,54 @@ body {
   padding-top: 2rem;
 }
 
+/* ─── Prose & poetry text ────────────────────────────────────────── */
+.text-body {
+  font-family: var(--font-prose);
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--color-ink);
+}
+
+.text-body-poetry {
+  line-height: 1.9;
+}
+
+.aligned-mark {
+  border-radius: 0.15rem;
+  padding: 0.02rem 0.08rem;
+  transition: background-color 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  cursor: pointer;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.aligned-mark.has-alignment {
+  background-color: rgba(181, 137, 110, 0.2);
+  border-bottom: 2px dotted #a67c5b;
+  text-decoration: none;
+  box-shadow: inset 0 -1px 0 rgba(181, 137, 110, 0.15);
+}
+
+[data-theme='dark'] .aligned-mark.has-alignment {
+  background-color: rgba(212, 168, 138, 0.12);
+  border-bottom-color: rgba(212, 168, 138, 0.55);
+}
+
+.aligned-mark:hover {
+  background-color: var(--color-surface-2);
+}
+
+.aligned-mark.is-focused {
+  box-shadow: inset 2px 0 0 0 var(--color-accent);
+}
+
+.aligned-mark.is-dimmed {
+  opacity: 0.38;
+}
+
+/* ─── Blog prose (unchanged) ─────────────────────────────────────── */
 .prose .anchor {
   @apply absolute invisible no-underline;
-
   margin-left: -1em;
   padding-right: 0.5em;
   width: 80%;
@@ -91,12 +171,12 @@ body {
 }
 
 .prose a {
-  @apply underline transition-all decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em];
+  @apply underline transition-all decoration-neutral-400 underline-offset-2 decoration-[0.1em];
 }
 
 .prose .anchor:after {
-  @apply text-neutral-300 dark:text-neutral-700;
   content: '#';
+  color: var(--color-muted);
 }
 
 .prose *:hover > .anchor {
@@ -104,86 +184,24 @@ body {
 }
 
 .prose pre {
-  @apply bg-neutral-50 dark:bg-neutral-900 rounded-lg overflow-x-auto border border-neutral-200 dark:border-neutral-900 py-2 px-3 text-sm;
-}
-
-.prose code {
-  @apply px-1 py-0.5 rounded-lg;
-}
-
-.prose pre code {
-  @apply p-0;
-  border: initial;
-  line-height: 1.5;
-}
-
-.prose code span {
-  @apply font-medium;
-}
-
-.prose img {
-  @apply m-0;
+  @apply rounded-lg overflow-x-auto border py-2 px-3 text-sm;
+  background: var(--color-surface-2);
+  border-color: var(--color-border);
 }
 
 .prose p {
-  @apply my-4 text-neutral-800 dark:text-neutral-200;
+  margin-block: 1rem;
+  color: var(--color-ink-soft);
 }
 
 .prose h1 {
   @apply text-4xl font-medium tracking-tight mt-6 mb-2;
 }
 
-.prose h2 {
-  @apply text-xl font-medium tracking-tight mt-6 mb-2;
-}
-
-.prose h3 {
-  @apply text-xl font-medium tracking-tight mt-6 mb-2;
-}
-
+.prose h2,
+.prose h3,
 .prose h4 {
-  @apply text-lg font-medium tracking-tight mt-6 mb-2;
-}
-
-.prose strong {
-  @apply font-medium;
-}
-
-.prose ul {
-  @apply list-disc pl-6;
-}
-
-.prose ol {
-  @apply list-decimal pl-6;
-}
-
-.prose > :first-child {
-  margin-top: 1.25em !important;
-  margin-bottom: 1.25em !important;
-}
-
-pre::-webkit-scrollbar {
-  display: none;
-}
-
-pre {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-input[type='text'],
-input[type='email'],
-textarea {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-table {
-  display: block;
-  max-width: fit-content;
-  overflow-x: auto;
-  white-space: nowrap;
+  @apply font-medium tracking-tight mt-6 mb-2;
 }
 
 .title {
@@ -192,4 +210,11 @@ table {
 
 .poem-stanza + .poem-stanza {
   margin-top: 2rem;
+}
+
+input[type='text'],
+input[type='email'],
+textarea {
+  -webkit-appearance: none;
+  appearance: none;
 }

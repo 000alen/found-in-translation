@@ -1,39 +1,42 @@
-import type { Alignment, Segment } from "./types";
+import type { Alignment, Segment, TextAnchor } from "./types";
 import type { ConnectionTheme } from "./connections/types";
 
 export const GROUP_COLORS = [
-  { id: "violet", bar: "bg-violet-500", bg: "bg-violet-500/10", ring: "ring-violet-500/30", text: "text-violet-700 dark:text-violet-300", connectionFill: "rgba(139, 92, 246, 0.2)", connectionStroke: "rgba(139, 92, 246, 0.5)" },
-  { id: "sky", bar: "bg-sky-500", bg: "bg-sky-500/10", ring: "ring-sky-500/30", text: "text-sky-700 dark:text-sky-300", connectionFill: "rgba(14, 165, 233, 0.2)", connectionStroke: "rgba(14, 165, 233, 0.5)" },
-  { id: "emerald", bar: "bg-emerald-500", bg: "bg-emerald-500/10", ring: "ring-emerald-500/30", text: "text-emerald-700 dark:text-emerald-300", connectionFill: "rgba(16, 185, 129, 0.22)", connectionStroke: "rgba(16, 185, 129, 0.55)" },
-  { id: "amber", bar: "bg-amber-500", bg: "bg-amber-500/10", ring: "ring-amber-500/30", text: "text-amber-700 dark:text-amber-300", connectionFill: "rgba(245, 158, 11, 0.2)", connectionStroke: "rgba(245, 158, 11, 0.5)" },
-  { id: "rose", bar: "bg-rose-500", bg: "bg-rose-500/10", ring: "ring-rose-500/30", text: "text-rose-700 dark:text-rose-300", connectionFill: "rgba(244, 63, 94, 0.2)", connectionStroke: "rgba(244, 63, 94, 0.5)" },
-  { id: "indigo", bar: "bg-indigo-500", bg: "bg-indigo-500/10", ring: "ring-indigo-500/30", text: "text-indigo-700 dark:text-indigo-300", connectionFill: "rgba(99, 102, 241, 0.2)", connectionStroke: "rgba(99, 102, 241, 0.5)" },
-  { id: "teal", bar: "bg-teal-500", bg: "bg-teal-500/10", ring: "ring-teal-500/30", text: "text-teal-700 dark:text-teal-300", connectionFill: "rgba(20, 184, 166, 0.2)", connectionStroke: "rgba(20, 184, 166, 0.5)" },
-  { id: "fuchsia", bar: "bg-fuchsia-500", bg: "bg-fuchsia-500/10", ring: "ring-fuchsia-500/30", text: "text-fuchsia-700 dark:text-fuchsia-300", connectionFill: "rgba(217, 70, 239, 0.2)", connectionStroke: "rgba(217, 70, 239, 0.5)" },
+  { id: "sage", bar: "bg-sage", bg: "bg-sage-soft", ring: "ring-sage/25", text: "text-sage-deep", connectionFill: "rgba(122, 140, 113, 0.28)", connectionStroke: "rgba(122, 140, 113, 0.55)" },
+  { id: "clay", bar: "bg-clay", bg: "bg-clay-soft", ring: "ring-clay/25", text: "text-clay-deep", connectionFill: "rgba(181, 137, 110, 0.28)", connectionStroke: "rgba(181, 137, 110, 0.55)" },
+  { id: "mist", bar: "bg-mist", bg: "bg-mist-soft", ring: "ring-mist/25", text: "text-mist-deep", connectionFill: "rgba(125, 148, 170, 0.28)", connectionStroke: "rgba(125, 148, 170, 0.55)" },
+  { id: "rose", bar: "bg-rose-mark", bg: "bg-rose-soft", ring: "ring-rose-mark/25", text: "text-rose-deep", connectionFill: "rgba(196, 133, 133, 0.28)", connectionStroke: "rgba(196, 133, 133, 0.55)" },
+  { id: "wheat", bar: "bg-wheat", bg: "bg-wheat-soft", ring: "ring-wheat/25", text: "text-wheat-deep", connectionFill: "rgba(196, 168, 108, 0.28)", connectionStroke: "rgba(196, 168, 108, 0.55)" },
+  { id: "ink", bar: "bg-ink-faint", bg: "bg-surface-2", ring: "ring-border", text: "text-muted", connectionFill: "rgba(44, 40, 37, 0.14)", connectionStroke: "rgba(44, 40, 37, 0.32)" },
 ] as const;
 
 export type GroupColor = (typeof GROUP_COLORS)[number];
 
-export type SegmentGroupInfo = {
+export type AnchorGroupInfo = {
   alignmentId: string;
   color: GroupColor;
   kind: Alignment["kind"];
 };
 
-export function buildSegmentGroupMap(
-  alignments: Alignment[]
-): Map<string, SegmentGroupInfo> {
-  const map = new Map<string, SegmentGroupInfo>();
+function anchorIdsFromAlignment(alignment: Alignment): string[] {
+  const legacy = alignment as Alignment & { sourceSegmentIds?: string[]; targetSegmentIds?: string[] };
+  if (alignment.sourceAnchors?.length) {
+    return [
+      ...alignment.sourceAnchors.map((anchor) => anchor.id),
+      ...alignment.targetAnchors.map((anchor) => anchor.id),
+    ];
+  }
+  return [...(legacy.sourceSegmentIds ?? []), ...(legacy.targetSegmentIds ?? [])];
+}
+
+export function buildAnchorGroupMap(alignments: Alignment[]): Map<string, AnchorGroupInfo> {
+  const map = new Map<string, AnchorGroupInfo>();
 
   alignments.forEach((alignment, index) => {
     const color = GROUP_COLORS[index % GROUP_COLORS.length];
-    const info: SegmentGroupInfo = {
-      alignmentId: alignment.id,
-      color,
-      kind: alignment.kind,
-    };
+    const info: AnchorGroupInfo = { alignmentId: alignment.id, color, kind: alignment.kind };
 
-    for (const id of [...alignment.sourceSegmentIds, ...alignment.targetSegmentIds]) {
+    for (const id of anchorIdsFromAlignment(alignment)) {
       map.set(id, info);
     }
   });
@@ -41,33 +44,48 @@ export function buildSegmentGroupMap(
   return map;
 }
 
-export function getAlignmentForSegment(
-  segmentId: string,
+/** @deprecated */
+export const buildSegmentGroupMap = buildAnchorGroupMap;
+export type SegmentGroupInfo = AnchorGroupInfo;
+
+export function getAlignmentForAnchor(
+  anchorId: string,
   alignments: Alignment[]
 ): Alignment | null {
   return (
-    alignments.find(
-      (alignment) =>
-        alignment.sourceSegmentIds.includes(segmentId) ||
-        alignment.targetSegmentIds.includes(segmentId)
-    ) ?? null
+    alignments.find((alignment) => {
+      const ids = anchorIdsFromAlignment(alignment);
+      return ids.includes(anchorId);
+    }) ?? null
   );
 }
 
-export function getLinkedSegmentIds(
-  segmentId: string,
-  alignments: Alignment[]
-): string[] {
-  const alignment = getAlignmentForSegment(segmentId, alignments);
-  if (!alignment) return [segmentId];
+/** @deprecated */
+export const getAlignmentForSegment = getAlignmentForAnchor;
 
-  return Array.from(
-    new Set([
-      segmentId,
-      ...alignment.sourceSegmentIds,
-      ...alignment.targetSegmentIds,
-    ])
-  );
+export function getLinkedAnchorIds(anchorId: string, alignments: Alignment[]): string[] {
+  const alignment = getAlignmentForAnchor(anchorId, alignments);
+  if (!alignment) return [anchorId];
+  return Array.from(new Set(anchorIdsFromAlignment(alignment)));
+}
+
+/** @deprecated */
+export const getLinkedSegmentIds = getLinkedAnchorIds;
+
+export function getAnchorsForAlignment(
+  alignment: Alignment
+): { source: TextAnchor[]; target: TextAnchor[] } {
+  const legacy = alignment as Alignment & { sourceSegmentIds?: string[]; targetSegmentIds?: string[] };
+
+  if (alignment.sourceAnchors?.length) {
+    return { source: alignment.sourceAnchors, target: alignment.targetAnchors };
+  }
+
+  const toStub = (id: string): TextAnchor => ({ id, segmentId: id, quote: "" });
+  return {
+    source: (legacy.sourceSegmentIds ?? []).map(toStub),
+    target: (legacy.targetSegmentIds ?? []).map(toStub),
+  };
 }
 
 export function getSegmentsForAlignment(
@@ -75,24 +93,20 @@ export function getSegmentsForAlignment(
   segments: Segment[]
 ): { source: Segment[]; target: Segment[] } {
   const byId = new Map(segments.map((segment) => [segment.id, segment]));
+  const { source, target } = getAnchorsForAlignment(alignment);
 
   return {
-    source: alignment.sourceSegmentIds
-      .map((id) => byId.get(id))
-      .filter((segment): segment is Segment => Boolean(segment)),
-    target: alignment.targetSegmentIds
-      .map((id) => byId.get(id))
-      .filter((segment): segment is Segment => Boolean(segment)),
+    source: source.map((a) => byId.get(a.segmentId)).filter((s): s is Segment => Boolean(s)),
+    target: target.map((a) => byId.get(a.segmentId)).filter((s): s is Segment => Boolean(s)),
   };
 }
 
-export function isSourceSegment(segmentId: string) {
-  return segmentId.includes(":source:");
+export function isSourceAnchor(anchorId: string) {
+  return anchorId.includes(":source:");
 }
 
-export function segmentSide(segmentId: string): "source" | "target" {
-  return isSourceSegment(segmentId) ? "source" : "target";
-}
+/** @deprecated */
+export const isSourceSegment = isSourceAnchor;
 
 export function groupColorToConnectionTheme(color: GroupColor): ConnectionTheme {
   return {

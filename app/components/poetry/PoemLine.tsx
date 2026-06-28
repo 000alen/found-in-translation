@@ -24,14 +24,14 @@ const lineClass = (props: {
     "poem-line group relative mb-1 w-full rounded-xl px-3 py-2.5 text-left transition-all duration-200",
     props.mode === "align" && "cursor-pointer",
     props.mode === "comment" && "cursor-text select-text",
-    props.mode === "read" && "cursor-pointer hover:bg-paper-elevated/80 dark:hover:bg-ink-elevated/50",
+    props.mode === "read" && "cursor-pointer hover:bg-surface-2/80",
     props.isDimmed && "opacity-35",
     props.isFocused && props.group && [props.group.color.bg, "ring-1", props.group.color.ring, "shadow-sm"],
     props.isStaged && "ring-2 ring-accent/50 bg-accent/10",
     !props.isFocused &&
       !props.isStaged &&
       props.group &&
-      "hover:bg-paper-elevated/60 dark:hover:bg-ink-elevated/40"
+      "hover:bg-surface-2/60"
   );
 
 function LineContent({
@@ -58,7 +58,7 @@ function LineContent({
 
       <span
         className={cn(
-          "font-poetry block pl-2 text-[1.05rem] leading-[1.9] text-ink dark:text-paper",
+          "font-poetry block pl-2 text-[1.05rem] leading-[1.9] text-ink",
           isFocused && "font-medium"
         )}
       >
@@ -97,6 +97,7 @@ export function PoemLine({
       <div
         ref={(element) => registerRef?.(segment.id, element)}
         data-segment-id={segment.id}
+        data-anchor-id={segment.id}
         className={className}
       >
         <LineContent segment={segment} group={group} isFocused={isFocused} />
@@ -109,6 +110,7 @@ export function PoemLine({
       type="button"
       ref={(element) => registerRef?.(segment.id, element)}
       data-segment-id={segment.id}
+      data-anchor-id={segment.id}
       onClick={() => onClick?.(segment)}
       className={className}
     >

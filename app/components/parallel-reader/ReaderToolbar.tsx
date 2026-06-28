@@ -39,38 +39,38 @@ export function ReaderToolbar({
   onToggleReadMode,
 }: ReaderToolbarProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-paper/80 p-3 backdrop-blur-md dark:bg-ink/60 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface/90 p-2 backdrop-blur-sm md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-wrap items-center gap-1">
         {modes.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => onModeChange(item.id)}
             className={cn(
-              "rounded-full px-4 py-2 text-sm transition",
+              "rounded-full px-3.5 py-1.5 text-sm transition",
               mode === item.id
-                ? "bg-accent text-white shadow-sm"
-                : "bg-paper-elevated text-muted hover:text-ink dark:bg-ink-elevated dark:hover:text-paper"
+                ? "bg-accent text-white"
+                : "text-muted hover:bg-surface-2 hover:text-ink"
             )}
           >
             {item.label}
-            <span className="ml-1.5 text-xs opacity-60">{item.shortcut}</span>
+            <span className="ml-1 text-[10px] opacity-50">{item.shortcut}</span>
           </button>
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-full border border-border p-1 md:hidden">
+      <div className="flex flex-wrap items-center gap-1">
+        <div className="flex rounded-full border border-border p-0.5 md:hidden">
           {(["source", "both", "target"] as MobileColumn[]).map((column) => (
             <button
               key={column}
               type="button"
               onClick={() => onMobileColumnChange(column)}
               className={cn(
-                "rounded-full px-3 py-1.5 text-xs capitalize transition",
+                "rounded-full px-2.5 py-1 text-xs capitalize transition",
                 mobileColumn === column
                   ? "bg-accent text-white"
-                  : "text-muted hover:text-ink dark:hover:text-paper"
+                  : "text-muted hover:text-ink"
               )}
             >
               {column}
@@ -82,29 +82,27 @@ export function ReaderToolbar({
           type="button"
           onClick={onToggleConnections}
           className={cn(
-            "rounded-full px-3 py-2 text-sm transition",
-            showConnections
-              ? "bg-accent/15 text-accent"
-              : "bg-paper-elevated text-muted dark:bg-ink-elevated"
+            "rounded-full px-3 py-1.5 text-sm transition",
+            showConnections ? "bg-accent-soft text-accent" : "text-muted hover:bg-surface-2"
           )}
         >
-          Connections
+          Links
         </button>
 
         <button
           type="button"
           onClick={onToggleComments}
-          className="rounded-full bg-paper-elevated px-3 py-2 text-sm text-muted transition hover:text-ink dark:bg-ink-elevated dark:hover:text-paper"
+          className="rounded-full px-3 py-1.5 text-sm text-muted transition hover:bg-surface-2 hover:text-ink"
         >
-          Comments {commentCount > 0 ? `(${commentCount})` : ""}
+          Notes {commentCount > 0 ? `(${commentCount})` : ""}
         </button>
 
         <button
           type="button"
           onClick={onToggleReadMode}
-          className="rounded-full bg-paper-elevated px-3 py-2 text-sm text-muted transition hover:text-ink dark:bg-ink-elevated dark:hover:text-paper"
+          className="rounded-full px-3 py-1.5 text-sm text-muted transition hover:bg-surface-2 hover:text-ink"
         >
-          Read mode
+          Focus
         </button>
 
         {studioMode && (
@@ -112,7 +110,7 @@ export function ReaderToolbar({
             <button
               type="button"
               onClick={onSaveAlignments}
-              className="rounded-full bg-accent px-4 py-2 text-sm text-white shadow-sm transition hover:opacity-90"
+              className="rounded-full bg-accent px-3.5 py-1.5 text-sm text-white transition hover:opacity-90"
             >
               Save
             </button>
@@ -120,9 +118,9 @@ export function ReaderToolbar({
               <button
                 type="button"
                 onClick={onDeleteAlignment}
-                className="rounded-full border border-border px-3 py-2 text-sm text-muted transition hover:text-ink dark:hover:text-paper"
+                className="rounded-full border border-border px-3 py-1.5 text-sm text-muted transition hover:text-ink"
               >
-                Delete connection
+                Delete
               </button>
             )}
           </>

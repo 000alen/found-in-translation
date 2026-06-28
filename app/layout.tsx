@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { CommentsProvider } from './components/comments/CommentsProvider'
+import { ThemeProvider } from './components/theme/ThemeProvider'
 import { Navbar } from './components/nav'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -15,11 +16,11 @@ export const metadata: Metadata = {
     template: '%s | Found in Translation',
   },
   description:
-    'Side-by-side poetry translations with linked lines, alignment tools, and collaborative commentary.',
+    'Side-by-side translations with phrase-level links, alignment tools, and collaborative commentary.',
   openGraph: {
     title: 'Found in Translation',
     description:
-      'Side-by-side poetry translations with linked lines, alignment tools, and collaborative commentary.',
+      'Side-by-side translations with phrase-level links, alignment tools, and collaborative commentary.',
     url: baseUrl,
     siteName: 'Found in Translation',
     locale: 'en_US',
@@ -48,19 +49,19 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cx(
-        'text-ink bg-paper dark:text-paper dark:bg-ink',
-        GeistSans.variable,
-        GeistMono.variable
-      )}
+      data-theme="light"
+      suppressHydrationWarning
+      className={cx(GeistSans.variable, GeistMono.variable)}
     >
-      <body className="antialiased min-h-screen">
-        <div className="mx-auto flex min-h-screen w-full max-w-[1400px] flex-col px-4 pt-6 md:px-8">
-          <CommentsProvider>
-            <Navbar />
-            <main className="flex flex-1 flex-col">{children}</main>
-          </CommentsProvider>
-        </div>
+      <body className="min-h-screen bg-paper text-ink antialiased">
+        <ThemeProvider>
+          <div className="mx-auto flex min-h-screen w-full max-w-[1400px] flex-col px-4 pt-5 md:px-8">
+            <CommentsProvider>
+              <Navbar />
+              <main className="flex flex-1 flex-col">{children}</main>
+            </CommentsProvider>
+          </div>
+        </ThemeProvider>
         <Analytics />
         <SpeedInsights />
       </body>

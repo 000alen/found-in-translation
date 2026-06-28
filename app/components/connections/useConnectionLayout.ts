@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Alignment } from "@/lib/types";
+import { getAnchorsForAlignment } from "@/lib/alignments";
 import { buildTriangleLinkPath, domRectToLocal } from "@/lib/connections/geometry";
 import type { ConnectionRenderLink } from "@/lib/connections/types";
 
@@ -10,9 +11,20 @@ type UseConnectionLayoutOptions = {
   containerRef: React.RefObject<HTMLDivElement>;
   leftScrollRef: React.RefObject<HTMLDivElement>;
   rightScrollRef: React.RefObject<HTMLDivElement>;
-  getElement: (segmentId: string) => HTMLElement | null;
+  getElement: (anchorId: string) => HTMLElement | null;
   visible: boolean;
 };
+
+function resolveAnchorElement(
+  anchorId: string,
+  container: HTMLElement | null,
+  getElement: (anchorId: string) => HTMLElement | null
+): HTMLElement | null {
+  const fromMap = getElement(anchorId);
+  if (fromMap) return fromMap;
+  if (!container) return null;
+  return container.querySelector<HTMLElement>(`[data-anchor-id="${anchorId}"]`);
+}
 
 export function useConnectionLayout({
   alignment,
@@ -33,22 +45,23 @@ export function useConnectionLayout({
     }
 
     const containerRect = container.getBoundingClientRect();
+    const { source, target } = getAnchorsForAlignment(alignment);
     const nextLinks: ConnectionRenderLink[] = [];
 
-    for (const sourceId of alignment.sourceSegmentIds) {
-      for (const targetId of alignment.targetSegmentIds) {
-        const sourceEl = getElement(sourceId);
-        const targetEl = getElement(targetId);
+    for (const sourceAnchor of source) {
+      for (const targetAnchor of target) {
+        const sourceEl = resolveAnchorElement(sourceAnchor.id, container, getElement);
+        const targetEl = resolveAnchorElement(targetAnchor.id, container, getElement);
         if (!sourceEl || !targetEl) continue;
 
-        const source = domRectToLocal(sourceEl.getBoundingClientRect(), containerRect);
-        const target = domRectToLocal(targetEl.getBoundingClientRect(), containerRect);
+        const sourceRect = domRectToLocal(sourceEl.getBoundingClientRect(), containerRect);
+        const targetRect = domRectToLocal(targetEl.getBoundingClientRect(), containerRect);
 
         nextLinks.push({
-          id: `link-${sourceId}-${targetId}`,
-          sourceId,
-          targetId,
-          path: buildTriangleLinkPath(source, target),
+          id: `link-${sourceAnchor.id}-${targetAnchor.id}`,
+          sourceId: sourceAnchor.id,
+          targetId: targetAnchor.id,
+          path: buildTriangleLinkPath(sourceRect, targetRect),
         });
       }
     }
@@ -63,6 +76,8 @@ export function useConnectionLayout({
 
   useEffect(() => {
     scheduleMeasure();
+    const retry = window.setTimeout(scheduleMeasure, 50);
+    const retry2 = window.setTimeout(scheduleMeasure, 200);
 
     window.addEventListener("resize", scheduleMeasure);
 
@@ -78,12 +93,14 @@ export function useConnectionLayout({
       });
 
     return () => {
+      window.clearTimeout(retry);
+      window.clearTimeout(retry2);
       window.removeEventListener("resize", scheduleMeasure);
       if (resizeObserver && container) resizeObserver.unobserve(container);
       scrollCleanups.forEach((cleanup) => cleanup());
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [containerRef, leftScrollRef, rightScrollRef, scheduleMeasure]);
+  }, [alignment?.id, containerRef, leftScrollRef, rightScrollRef, scheduleMeasure]);
 
   return { links, remeasure: scheduleMeasure };
 }

@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { Alignment, Segment } from "@/lib/types";
 import {
   GROUP_COLORS,
-  getSegmentsForAlignment,
+  getAnchorsForAlignment,
   type GroupColor,
 } from "@/lib/alignments";
 import { cn } from "@/lib/utils";
@@ -13,45 +13,75 @@ type ConnectionDockProps = {
   alignment: Alignment | null;
   color: GroupColor | null;
   segments: Segment[];
-  onJumpTo: (segmentId: string) => void;
+  onJumpTo: (anchorId: string) => void;
   onClose: () => void;
 };
 
+type PassageItem = {
+  anchorId: string;
+  quote: string;
+  label: string;
+};
+
+function buildPassageItems(
+  anchors: ReturnType<typeof getAnchorsForAlignment>["source"],
+  segments: Segment[],
+  sideLabel: string
+): PassageItem[] {
+  const byId = new Map(segments.map((segment) => [segment.id, segment]));
+
+  return anchors.map((anchor) => {
+    const segment = byId.get(anchor.segmentId);
+    const quote = anchor.quote || segment?.text || "";
+
+    let label = sideLabel;
+    if (segment?.kind === "line") {
+      label = `Line ${segment.order}`;
+    } else if (segment?.kind === "span") {
+      label = "Phrase";
+    } else if (segment?.kind === "paragraph") {
+      label = "Paragraph";
+    }
+
+    return { anchorId: anchor.id, quote, label };
+  });
+}
+
 function PassageList({
-  label,
+  heading,
   items,
   color,
   onJumpTo,
 }: {
-  label: string;
-  items: Segment[];
+  heading: string;
+  items: PassageItem[];
   color: GroupColor;
-  onJumpTo: (segmentId: string) => void;
+  onJumpTo: (anchorId: string) => void;
 }) {
   if (items.length === 0) return null;
 
   return (
     <div className="min-w-0 flex-1">
-      <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted">
-        {label}
+      <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.22em] text-muted">
+        {heading}
       </p>
       <div className="space-y-2">
-        {items.map((segment) => (
+        {items.map((item) => (
           <button
-            key={segment.id}
+            key={item.anchorId}
             type="button"
-            onClick={() => onJumpTo(segment.id)}
+            onClick={() => onJumpTo(item.anchorId)}
             className={cn(
-              "group w-full rounded-xl border border-border/80 bg-paper/80 p-3 text-left transition hover:border-border hover:bg-paper dark:bg-ink/60 dark:hover:bg-ink/80",
+              "group w-full rounded-lg border border-border bg-surface p-3 text-left transition hover:border-border-soft hover:bg-surface-2",
               "focus-visible:outline-none focus-visible:ring-2",
               color.ring
             )}
           >
             <span className={cn("mb-1 block text-[10px] font-medium uppercase tracking-wider", color.text)}>
-              Line {segment.order}
+              {item.label}
             </span>
-            <span className="font-poetry text-sm leading-relaxed text-ink dark:text-paper">
-              {segment.text}
+            <span className="text-body block text-sm leading-relaxed text-ink">
+              {item.quote}
             </span>
           </button>
         ))}
@@ -84,7 +114,9 @@ export function ConnectionDock({
 }: ConnectionDockProps) {
   if (!alignment || !color) return null;
 
-  const { source, target } = getSegmentsForAlignment(alignment, segments);
+  const { source, target } = getAnchorsForAlignment(alignment);
+  const sourceItems = buildPassageItems(source, segments, "Original");
+  const targetItems = buildPassageItems(target, segments, "Translation");
 
   return (
     <AnimatePresence>
@@ -95,31 +127,31 @@ export function ConnectionDock({
         transition={{ type: "spring", stiffness: 420, damping: 32 }}
         className="pointer-events-auto absolute inset-x-4 bottom-4 z-30 mx-auto max-w-4xl"
       >
-        <div className="overflow-hidden rounded-2xl border border-border/80 bg-paper/90 shadow-2xl shadow-ink/10 backdrop-blur-xl dark:bg-ink/90">
-          <div className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3">
+        <div className="overflow-hidden rounded-xl border border-border bg-surface/95 shadow-lg backdrop-blur-xl">
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
             <div className="flex items-center gap-3">
-              <span className={cn("h-2.5 w-2.5 rounded-full", color.bar)} />
+              <span className={cn("h-2 w-2 rounded-full", color.bar)} />
               <div>
-                <p className="text-sm font-medium text-ink dark:text-paper">Connection</p>
+                <p className="text-sm font-medium text-ink">Connection</p>
                 <p className="text-xs text-muted">{kindLabel(alignment.kind)}</p>
               </div>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full px-3 py-1 text-xs text-muted transition hover:bg-paper-elevated hover:text-ink dark:hover:bg-ink-elevated dark:hover:text-paper"
+              className="rounded-full px-3 py-1 text-xs text-muted transition hover:bg-surface-2 hover:text-ink"
             >
               Close
             </button>
           </div>
 
           <div className="grid gap-4 p-4 md:grid-cols-[1fr_auto_1fr] md:items-start">
-            <PassageList label="Original" items={source} color={color} onJumpTo={onJumpTo} />
+            <PassageList heading="Original" items={sourceItems} color={color} onJumpTo={onJumpTo} />
 
             <div className="hidden flex-col items-center justify-center gap-1 px-2 md:flex">
-              <div className={cn("h-px w-8", color.bar, "opacity-60")} />
-              <span className="text-lg text-muted">↔</span>
-              <div className={cn("h-px w-8", color.bar, "opacity-60")} />
+              <div className={cn("h-px w-6", color.bar, "opacity-50")} />
+              <span className="text-sm text-muted">↔</span>
+              <div className={cn("h-px w-6", color.bar, "opacity-50")} />
             </div>
 
             <div className="md:hidden">
@@ -130,7 +162,7 @@ export function ConnectionDock({
               </div>
             </div>
 
-            <PassageList label="Translation" items={target} color={color} onJumpTo={onJumpTo} />
+            <PassageList heading="Translation" items={targetItems} color={color} onJumpTo={onJumpTo} />
           </div>
         </div>
       </motion.div>
@@ -141,12 +173,16 @@ export function ConnectionDock({
 export function ConnectionLegend({ count }: { count: number }) {
   return (
     <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-      <span>{count} connection{count === 1 ? "" : "s"}</span>
+      <span>
+        {count} connection{count === 1 ? "" : "s"}
+      </span>
       <span className="hidden text-border md:inline">·</span>
-      <span className="hidden md:inline">Click a passage to see triangle links across the page</span>
+      <span className="hidden md:inline">
+        Click a phrase or line to trace links across the page
+      </span>
       <div className="ml-auto flex items-center gap-1.5">
         {GROUP_COLORS.slice(0, Math.min(count, 5)).map((color) => (
-          <span key={color.id} className={cn("h-2 w-2 rounded-full", color.bar)} />
+          <span key={color.id} className={cn("h-1.5 w-1.5 rounded-full", color.bar)} />
         ))}
       </div>
     </div>

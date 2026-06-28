@@ -1,28 +1,29 @@
-import type { Alignment, Book, Poem, PoemEdition, Segment } from "../types";
+import type { Alignment, Book, Segment, TextEdition, TextWork } from "../types";
+import { alignmentFromPassageIds } from "../anchors";
 
 const BOOK_ID = "book-shakespeare-sonnets";
-const POEM_ID = "poem-sonnet-18";
+const WORK_ID = "work-sonnet-18";
 
 export const seedBook: Book = {
   id: BOOK_ID,
   slug: "shakespeare-sonnets",
   title: "Shakespeare's Sonnets",
-  subtitle: "Selected bilingual editions",
+  subtitle: "Poetry · selected bilingual editions",
   authors: [{ name: "William Shakespeare", role: "author" }],
   sourceLanguage: "en",
   targetLanguage: "es",
-  description:
-            "Side-by-side translations with linked passages, alignment tools, and collaborative commentary.",
-  coverGradient: "from-amber-100 via-orange-50 to-rose-100",
+  description: "Side-by-side poetry with linked passages and collaborative commentary.",
+  coverGradient: "from-stone-100 to-stone-50",
   publishedAt: "1609",
 };
 
-export const seedPoem: Poem = {
-  id: POEM_ID,
+export const seedWork: TextWork = {
+  id: WORK_ID,
   bookId: BOOK_ID,
   slug: "sonnet-18",
   title: "Sonnet XVIII",
   order: 1,
+  contentType: "poetry",
   sourceAuthor: "William Shakespeare",
   translator: "Traducción atribuida",
 };
@@ -61,17 +62,18 @@ const targetLines = [
   "Tanto vivirá esto, y esto te dará vida.",
 ];
 
-function buildSegments(): Segment[] {
+function buildPoetrySegments(): Segment[] {
   const result: Segment[] = [];
 
   for (const side of ["source", "target"] as const) {
     const lines = side === "source" ? sourceLines : targetLines;
     const language = side === "source" ? "en" : "es";
-    const stanzaParentId = `${POEM_ID}:${side}:stanza-1`;
+    const stanzaId = `${WORK_ID}:${side}:stanza-1`;
 
     result.push({
-      id: stanzaParentId,
-      poemId: POEM_ID,
+      id: stanzaId,
+      workId: WORK_ID,
+      poemId: WORK_ID,
       side,
       language,
       kind: "stanza",
@@ -81,12 +83,13 @@ function buildSegments(): Segment[] {
 
     lines.forEach((text, index) => {
       result.push({
-        id: `${POEM_ID}:${side}:line-${index + 1}`,
-        poemId: POEM_ID,
+        id: `${WORK_ID}:${side}:line-${index + 1}`,
+        workId: WORK_ID,
+        poemId: WORK_ID,
         side,
         language,
         kind: "line",
-        parentId: stanzaParentId,
+        parentId: stanzaId,
         order: index + 1,
         text,
       });
@@ -96,39 +99,44 @@ function buildSegments(): Segment[] {
   return result;
 }
 
-function buildAlignments(): Alignment[] {
-  const s = (line: number) => `${POEM_ID}:source:line-${line}`;
-  const t = (line: number) => `${POEM_ID}:target:line-${line}`;
+function buildPoetryAlignments(segments: Segment[]): Alignment[] {
+  const s = (n: number) => `${WORK_ID}:source:line-${n}`;
+  const t = (n: number) => `${WORK_ID}:target:line-${n}`;
 
-  return [
-    { id: "g1", poemId: POEM_ID, sourceSegmentIds: [s(1)], targetSegmentIds: [t(1)], kind: "parallel", confidence: 1, createdBy: "seed" },
-    { id: "g2", poemId: POEM_ID, sourceSegmentIds: [s(2)], targetSegmentIds: [t(2)], kind: "parallel", confidence: 1, createdBy: "seed" },
-    // Nature imagery appears in different order across languages
-    { id: "g3", poemId: POEM_ID, sourceSegmentIds: [s(3), s(4)], targetSegmentIds: [t(4), t(3)], kind: "cross", confidence: 0.92, createdBy: "seed" },
-    { id: "g4", poemId: POEM_ID, sourceSegmentIds: [s(5), s(6)], targetSegmentIds: [t(5), t(6)], kind: "parallel", confidence: 0.95, createdBy: "seed" },
-    { id: "g5", poemId: POEM_ID, sourceSegmentIds: [s(7), s(8)], targetSegmentIds: [t(7), t(8)], kind: "partial", confidence: 0.9, createdBy: "seed" },
-    // Two English lines compress into one Spanish line
-    { id: "g6", poemId: POEM_ID, sourceSegmentIds: [s(9), s(10)], targetSegmentIds: [t(9)], kind: "partial", confidence: 0.88, createdBy: "seed" },
-    // One English line expands into two Spanish lines
-    { id: "g7", poemId: POEM_ID, sourceSegmentIds: [s(11)], targetSegmentIds: [t(10), t(11)], kind: "partial", confidence: 0.86, createdBy: "seed" },
-    { id: "g8", poemId: POEM_ID, sourceSegmentIds: [s(12)], targetSegmentIds: [t(12)], kind: "parallel", confidence: 1, createdBy: "seed" },
-    { id: "g9", poemId: POEM_ID, sourceSegmentIds: [s(13), s(14)], targetSegmentIds: [t(13), t(14)], kind: "parallel", confidence: 0.94, createdBy: "seed" },
+  const specs: Array<[string[], string[], Alignment["kind"]]> = [
+    [[s(1)], [t(1)], "parallel"],
+    [[s(2)], [t(2)], "parallel"],
+    [[s(3), s(4)], [t(4), t(3)], "cross"],
+    [[s(5), s(6)], [t(5), t(6)], "parallel"],
+    [[s(7), s(8)], [t(7), t(8)], "partial"],
+    [[s(9), s(10)], [t(9)], "partial"],
+    [[s(11)], [t(10), t(11)], "partial"],
+    [[s(12)], [t(12)], "parallel"],
+    [[s(13), s(14)], [t(13), t(14)], "parallel"],
   ];
+
+  return specs.map(([sourceIds, targetIds, kind], index) => ({
+    ...alignmentFromPassageIds(WORK_ID, sourceIds, targetIds, segments, kind),
+    id: `g${index + 1}`,
+    confidence: 0.9,
+    createdBy: "seed",
+  }));
 }
 
-export const seedSegments = buildSegments();
-export const seedAlignments = buildAlignments();
+export const poetrySegments = buildPoetrySegments();
+export const poetryAlignments = buildPoetryAlignments(poetrySegments);
 
 export const seedBooks: Book[] = [seedBook];
-export const seedPoems: Poem[] = [seedPoem];
+export const seedWorks: TextWork[] = [seedWork];
 
-export function getSeedEdition(poemSlug: string): PoemEdition | null {
-  if (poemSlug !== seedPoem.slug) return null;
+export function getSeedEdition(workSlug: string): TextEdition | null {
+  if (workSlug !== seedWork.slug) return null;
   return {
     book: seedBook,
-    poem: seedPoem,
-    segments: seedSegments,
-    alignments: seedAlignments,
+    work: seedWork,
+    poem: seedWork,
+    segments: poetrySegments,
+    alignments: poetryAlignments,
   };
 }
 
@@ -136,8 +144,15 @@ export function getSeedBook(slug: string): Book | null {
   return seedBooks.find((book) => book.slug === slug) ?? null;
 }
 
-export function getSeedPoemsForBook(bookSlug: string): Poem[] {
+export function getSeedWorksForBook(bookSlug: string): TextWork[] {
   const book = getSeedBook(bookSlug);
   if (!book) return [];
-  return seedPoems.filter((poem) => poem.bookId === book.id);
+  return seedWorks.filter((work) => work.bookId === book.id);
 }
+
+// Legacy exports
+export const seedPoem = seedWork;
+export const seedSegments = poetrySegments;
+export const seedAlignments = poetryAlignments;
+export const seedPoems = seedWorks;
+export const getSeedPoemsForBook = getSeedWorksForBook;
