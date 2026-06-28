@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { SourceColumn, TargetColumn } from "./SourceColumn";
 import { ConnectionDock, ConnectionLegend } from "./ConnectionDock";
+import { ConnectionRibbons } from "./ConnectionRibbons";
 import { ReaderToolbar } from "./ReaderToolbar";
 import { CommentPanel } from "@/app/components/comments/CommentPanel";
 import { useLocalComments } from "@/app/components/comments/useLocalComments";
@@ -42,6 +43,7 @@ export function ParallelReader({
 
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const elementMap = useRef<Map<string, HTMLElement>>(new Map());
 
   const comments = useLocalComments(edition.poem.id);
@@ -65,6 +67,11 @@ export function ParallelReader({
     if (element) elementMap.current.set(segmentId, element);
     else elementMap.current.delete(segmentId);
   }, []);
+
+  const getElement = useCallback(
+    (segmentId: string) => elementMap.current.get(segmentId) ?? null,
+    []
+  );
 
   const scrollToSegment = useCallback((segmentId: string) => {
     const element = elementMap.current.get(segmentId);
@@ -301,6 +308,7 @@ export function ParallelReader({
         )}
       >
         <div
+          ref={containerRef}
           className={cn(
             "relative flex min-h-[60vh] flex-1 rounded-2xl border border-border bg-paper-elevated/60 p-4 shadow-sm backdrop-blur-sm dark:bg-ink-elevated/40 md:p-8",
             mobileColumn === "both" ? "flex-row gap-10" : "flex-col gap-6",
@@ -308,6 +316,17 @@ export function ParallelReader({
           )}
           onMouseUp={handleTextSelection}
         >
+          {showConnections && activeAlignment && activeColor && mobileColumn === "both" && (
+            <ConnectionRibbons
+              alignment={activeAlignment}
+              containerRef={containerRef}
+              leftScrollRef={leftScrollRef}
+              rightScrollRef={rightScrollRef}
+              getElement={getElement}
+              ribbonColor={activeColor.color.ribbon}
+              visible
+            />
+          )}
           {mode === "align" && (
             <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center pt-3">
               <span className="rounded-full bg-ink/85 px-4 py-1.5 text-xs text-paper shadow-lg backdrop-blur-sm dark:bg-paper/90 dark:text-ink">

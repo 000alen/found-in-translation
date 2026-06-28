@@ -143,7 +143,7 @@ export function ConnectionLegend({ count }: { count: number }) {
     <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
       <span>{count} connection{count === 1 ? "" : "s"}</span>
       <span className="hidden text-border md:inline">·</span>
-      <span className="hidden md:inline">Click any passage to explore how it maps</span>
+      <span className="hidden md:inline">Click a passage to draw ribbons across the page</span>
       <div className="ml-auto flex items-center gap-1.5">
         {GROUP_COLORS.slice(0, Math.min(count, 5)).map((color) => (
           <span key={color.id} className={cn("h-2 w-2 rounded-full", color.bar)} />
