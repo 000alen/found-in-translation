@@ -194,7 +194,6 @@ export function ParallelReader({
           break;
         case "l":
           setShowConnections((value) => !value);
-          setFocusedSegmentId(null);
           break;
         case "c":
           setMode("comment");
@@ -269,11 +268,13 @@ export function ParallelReader({
               onModeChange={(nextMode) => {
                 setMode(nextMode);
                 if (nextMode === "comment") setShowComments(true);
-                if (nextMode !== "read") setFocusedSegmentId(null);
+                if (nextMode === "align") {
+                  setFocusedSegmentId(null);
+                  setStagingIds([]);
+                }
               }}
               onToggleConnections={() => {
                 setShowConnections((value) => !value);
-                setFocusedSegmentId(null);
               }}
               onToggleComments={() => setShowComments((value) => !value)}
               onMobileColumnChange={setMobileColumn}
@@ -285,7 +286,13 @@ export function ParallelReader({
         )}
       </AnimatePresence>
 
-      {!readMode && (
+      {!readMode && !showConnections && (
+        <div className="mt-3 rounded-xl border border-border bg-paper-elevated px-4 py-2 text-sm text-muted dark:bg-ink-elevated">
+          Connections hidden — press <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-xs">L</kbd> or click Connections to show ribbons
+        </div>
+      )}
+
+      {!readMode && showConnections && (
         <div className="mt-3">
           <ConnectionLegend count={alignments.length} />
         </div>
