@@ -16,12 +16,6 @@ export function Navbar() {
             >
               Library
             </Link>
-            <Link
-              href="/capabilities"
-              className="rounded-full px-2.5 py-1 text-sm text-muted transition hover:bg-surface-2 hover:text-ink"
-            >
-              Capabilities
-            </Link>
           </nav>
           <ThemeToggle />
         </div>

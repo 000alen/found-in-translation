@@ -22,23 +22,17 @@ export default async function StudioPage({ params }: PageProps) {
   const edition = await getTextEdition(bookSlug, poemSlug);
   if (!edition) notFound();
 
-  const work = edition.work ?? edition.poem!;
-
   return (
-    <section className="mx-auto w-full max-w-7xl py-6">
-      <div className="mb-6">
+    <section className="w-full py-3">
+      <div className="mb-4 flex items-center justify-between border-b border-border pb-4">
         <Link
           href={`/books/${bookSlug}/${poemSlug}`}
           className="text-sm text-muted transition hover:text-accent"
         >
-          ← Back to reader
+          Reader
         </Link>
-        <h1 className="title mt-3 text-2xl font-medium tracking-tight text-ink">
-          Alignment studio
-        </h1>
-        <p className="mt-1 max-w-xl text-sm text-muted">
-          Link passages between languages and save alignments for{" "}
-          <span className="text-ink">{work.title}</span>.
+        <p className="text-[10px] uppercase tracking-[0.18em] text-muted">
+          Studio
         </p>
       </div>
 
