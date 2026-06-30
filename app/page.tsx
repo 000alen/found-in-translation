@@ -62,12 +62,20 @@ export default async function Page() {
           <p className="font-prose text-xl leading-relaxed text-ink-soft">
             Poetry and prose in parallel. Click a passage when the translation shifts.
           </p>
-          <Link
-            href="/books"
-            className="mt-6 inline-flex rounded-full bg-ink px-4 py-2 text-sm text-paper transition hover:bg-accent"
-          >
-            Open library
-          </Link>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Link
+              href="/books"
+              className="inline-flex rounded-full bg-ink px-4 py-2 text-sm text-paper transition hover:bg-accent"
+            >
+              Open library
+            </Link>
+            <Link
+              href="/capabilities"
+              className="inline-flex rounded-full border border-border px-4 py-2 text-sm text-ink transition hover:bg-surface-2"
+            >
+              See capabilities
+            </Link>
+          </div>
         </div>
       </div>
 

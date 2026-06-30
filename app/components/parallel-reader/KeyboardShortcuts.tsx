@@ -3,19 +3,27 @@
 type KeyboardShortcutsProps = {
   open: boolean;
   onClose: () => void;
+  studioMode?: boolean;
 };
 
-const shortcuts = [
+const readerShortcuts = [
   { key: "R", description: "Toggle read mode" },
-  { key: "A", description: "Switch to align mode" },
   { key: "C", description: "Switch to comment mode" },
   { key: "L", description: "Toggle connection highlights" },
   { key: "?", description: "Show keyboard shortcuts" },
   { key: "Esc", description: "Cancel current action" },
 ];
 
-export function KeyboardShortcuts({ open, onClose }: KeyboardShortcutsProps) {
+export function KeyboardShortcuts({ open, onClose, studioMode = false }: KeyboardShortcutsProps) {
   if (!open) return null;
+
+  const shortcuts = studioMode
+    ? [
+        readerShortcuts[0],
+        { key: "A", description: "Switch to align mode" },
+        ...readerShortcuts.slice(1),
+      ]
+    : readerShortcuts;
 
   return (
     <div

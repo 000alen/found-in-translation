@@ -125,9 +125,9 @@ export function ConnectionDock({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16, scale: 0.98 }}
         transition={{ type: "spring", stiffness: 420, damping: 32 }}
-        className="pointer-events-auto absolute bottom-4 right-4 z-30 w-[min(34rem,calc(100%-2rem))]"
+        className="pointer-events-auto absolute bottom-10 right-4 z-30 w-[min(34rem,calc(100%-2rem))]"
       >
-        <div className="overflow-hidden rounded-lg border border-border bg-surface/95 shadow-lg backdrop-blur-xl">
+        <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-lg">
           <div className="flex items-center justify-between gap-3 border-b border-border px-3 py-2">
             <div className="flex items-center gap-3">
               <span className={cn("h-2 w-2 rounded-full", color.bar)} />

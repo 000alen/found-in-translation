@@ -413,7 +413,11 @@ export function ParallelReader({
         </div>
       )}
 
-      <KeyboardShortcuts open={showShortcuts} onClose={() => setShowShortcuts(false)} />
+      <KeyboardShortcuts
+        open={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
+        studioMode={studioMode}
+      />
     </div>
   );
 }
