@@ -18,8 +18,7 @@ export const ukrainianBook: Book = {
   authors: [{ name: "Тарас Шевченко", role: "author" }],
   sourceLanguage: "uk",
   targetLanguage: "en",
-  description:
-    "Shevchenko's Testament opening in Ukrainian Cyrillic with phrase-level English alignment.",
+  description: "Ukrainian Cyrillic beside English.",
   coverGradient: "from-amber-50 to-yellow-100",
   publishedAt: "1845",
 };

@@ -68,13 +68,13 @@ export function TextColumn({
 
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
-      <div className="mb-5 flex items-baseline justify-between gap-3">
-        <span className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted">
+      <div className="mb-4 flex items-baseline justify-between gap-3 border-b border-border/60 pb-2">
+        <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted">
           {heading}
         </span>
         <LanguageLabel
           code={languageCode}
-          className="text-[11px] text-muted"
+          className="text-[10px] text-muted"
         />
       </div>
 

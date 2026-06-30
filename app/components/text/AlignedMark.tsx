@@ -53,9 +53,10 @@ export function AlignedMark({
       ref={(el) => registerRef?.(anchorId, el)}
       data-anchor-id={anchorId}
       onClick={() => onClick?.(anchorId)}
+      aria-label={`Show link for ${children}`}
       className={cn(
         markClass,
-        "cursor-pointer border-0 bg-transparent p-0 text-left font-inherit text-inherit",
+        "cursor-pointer border-0 text-left font-inherit text-inherit",
         mode === "align" && "ring-1 ring-transparent"
       )}
     >

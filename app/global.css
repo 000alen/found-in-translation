@@ -2,16 +2,16 @@
 
 /* ─── Light theme (default) ───────────────────────────────────────── */
 @theme {
-  --color-paper: #f7f5f0;
-  --color-surface: #fdfcf9;
-  --color-surface-2: #f0ede6;
-  --color-ink: #2c2825;
-  --color-ink-soft: #4a4541;
-  --color-muted: #8a837a;
-  --color-border: #e8e4dc;
-  --color-border-soft: #f0ede6;
-  --color-accent: #b5896e;
-  --color-accent-soft: #f5ebe3;
+  --color-paper: #f4f0e8;
+  --color-surface: #fbf8f1;
+  --color-surface-2: #ece4d8;
+  --color-ink: #221d19;
+  --color-ink-soft: #423a33;
+  --color-muted: #7d7267;
+  --color-border: #ded4c7;
+  --color-border-soft: #e8dfd2;
+  --color-accent: #9f6040;
+  --color-accent-soft: #efe0d4;
 
   --color-sage: #7a8c71;
   --color-sage-soft: #eef2eb;
@@ -85,8 +85,10 @@ body {
   background-color: var(--color-paper);
   color: var(--color-ink);
   background-image:
-    radial-gradient(ellipse at 20% 0%, color-mix(in oklab, var(--color-accent) 6%, transparent), transparent 50%),
-    radial-gradient(ellipse at 80% 100%, color-mix(in oklab, var(--color-sage) 5%, transparent), transparent 45%);
+    linear-gradient(rgba(34, 29, 25, 0.025) 1px, transparent 1px),
+    radial-gradient(ellipse at 20% 0%, color-mix(in oklab, var(--color-accent) 5%, transparent), transparent 50%),
+    radial-gradient(ellipse at 80% 100%, color-mix(in oklab, var(--color-sage) 4%, transparent), transparent 45%);
+  background-size: 100% 24px, auto, auto;
 }
 
 .font-poetry,
@@ -130,8 +132,8 @@ body {
 /* ─── Prose & poetry text ────────────────────────────────────────── */
 .text-body {
   font-family: var(--font-prose);
-  font-size: 1.05rem;
-  line-height: 1.85;
+  font-size: 1.04rem;
+  line-height: 1.78;
   color: var(--color-ink);
 }
 

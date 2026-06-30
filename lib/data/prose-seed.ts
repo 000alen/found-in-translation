@@ -18,8 +18,7 @@ export const proseBook: Book = {
   authors: [{ name: "Jorge Luis Borges", role: "author" }],
   sourceLanguage: "en",
   targetLanguage: "es",
-  description:
-    "Prose translation with phrase-level links — passages mid-paragraph connect to fragments on the other side.",
+  description: "A short prose opening mapped phrase by phrase.",
   coverGradient: "from-stone-50 to-stone-100",
   publishedAt: "1941",
 };

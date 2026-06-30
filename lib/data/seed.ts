@@ -12,7 +12,7 @@ export const seedBook: Book = {
   authors: [{ name: "William Shakespeare", role: "author" }],
   sourceLanguage: "en",
   targetLanguage: "es",
-  description: "Side-by-side poetry with linked passages and collaborative commentary.",
+  description: "A sonnet in two voices.",
   coverGradient: "from-stone-100 to-stone-50",
   publishedAt: "1609",
 };

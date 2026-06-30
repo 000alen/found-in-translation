@@ -16,12 +16,10 @@ export const metadata: Metadata = {
     default: 'Found in Translation',
     template: '%s | Found in Translation',
   },
-  description:
-    'Side-by-side translations with phrase-level links, alignment tools, and collaborative commentary.',
+  description: 'Read original texts beside their translations.',
   openGraph: {
     title: 'Found in Translation',
-    description:
-      'Side-by-side translations with phrase-level links, alignment tools, and collaborative commentary.',
+    description: 'Read original texts beside their translations.',
     url: baseUrl,
     siteName: 'Found in Translation',
     locale: 'en_US',
@@ -56,7 +54,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-paper text-ink antialiased">
         <ThemeProvider>
-          <div className="mx-auto flex min-h-screen w-full max-w-[1400px] flex-col px-4 pt-5 md:px-8">
+          <div className="mx-auto flex min-h-screen w-full max-w-[1680px] flex-col px-4 pt-5 md:px-8">
             <CommentsProvider>
               <Navbar />
               <main className="flex flex-1 flex-col">{children}</main>

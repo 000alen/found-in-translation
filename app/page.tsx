@@ -1,73 +1,99 @@
 import Link from "next/link";
+import { LanguagePair } from "@/app/components/LanguageLabel";
 import { listBooks } from "@/lib/data/repository";
+import { cn } from "@/lib/utils";
+
+type Feature = {
+  slug: string;
+  work: string;
+  label: string;
+  excerpt: string;
+  accent: string;
+};
+
+const featured: Feature[] = [
+  {
+    slug: "shakespeare-sonnets",
+    work: "sonnet-18",
+    label: "Sonnet XVIII",
+    excerpt: "Shall I compare thee to a summer's day?",
+    accent: "bg-clay",
+  },
+  {
+    slug: "borges-library",
+    work: "opening",
+    label: "Library of Babel",
+    excerpt: "The universe (which others call the Library)…",
+    accent: "bg-mist",
+  },
+  {
+    slug: "shevchenko-zapovit",
+    work: "zapovit",
+    label: "Заповіт",
+    excerpt: "І мертвим, і живим, і ненародженим…",
+    accent: "bg-wheat",
+  },
+  {
+    slug: "rilke-herbsttag",
+    work: "herbsttag",
+    label: "Herbsttag",
+    excerpt: "Herr: es ist Zeit. Der Sommer war sehr groß.",
+    accent: "bg-sage",
+  },
+];
 
 export default async function Page() {
   const books = await listBooks();
-  const featured = [
-    { slug: "shakespeare-sonnets", work: "sonnet-18", label: "Sonnet XVIII" },
-    { slug: "borges-library", work: "opening", label: "Library of Babel" },
-    { slug: "shevchenko-zapovit", work: "zapovit", label: "Заповіт" },
-    { slug: "rilke-herbsttag", work: "herbsttag", label: "Herbsttag" },
-  ].filter((item) => books.some((b) => b.slug === item.slug));
+  const booksBySlug = new Map(books.map((book) => [book.slug, book]));
+  const available = featured.filter((item) => booksBySlug.has(item.slug));
 
   return (
-    <section className="pb-16">
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-surface px-6 py-14 md:px-12 md:py-18">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(181,137,110,0.08),transparent_55%)]" />
-        <div className="relative max-w-2xl">
-          <p className="mb-3 text-[11px] uppercase tracking-[0.3em] text-muted">
-            Multilingual reading studio
+    <section className="pb-12">
+      <div className="grid gap-8 border-b border-border pb-10 pt-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+        <div>
+          <p className="mb-4 text-[11px] uppercase tracking-[0.24em] text-muted">
+            Original / translation
           </p>
-          <h1 className="title text-3xl font-medium tracking-tight text-ink md:text-5xl">
-            Poetry and prose in English, Spanish, German, and Ukrainian.
+          <h1 className="title max-w-3xl text-5xl font-medium leading-[0.95] tracking-[-0.045em] text-ink md:text-7xl">
+            Read beside the source.
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">
-            Read in parallel — phrase by phrase, line by line. Full Cyrillic support for
-            Ukrainian. Click any aligned passage to trace how it travels across languages.
+        </div>
+        <div className="max-w-xl lg:ml-auto">
+          <p className="font-prose text-xl leading-relaxed text-ink-soft">
+            Poetry and prose in parallel. Click a passage when the translation shifts.
           </p>
-          <div className="mt-7 flex flex-wrap gap-2">
-            <Link
-              href="/books"
-              className="rounded-full bg-accent px-4 py-2.5 text-sm text-white transition hover:opacity-90"
-            >
-              Browse editions
-            </Link>
-            {featured.map((item) => (
-              <Link
-                key={item.slug}
-                href={`/books/${item.slug}/${item.work}`}
-                className="rounded-full border border-border px-4 py-2.5 text-sm text-ink transition hover:bg-surface-2"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
+          <Link
+            href="/books"
+            className="mt-6 inline-flex rounded-full bg-ink px-4 py-2 text-sm text-paper transition hover:bg-accent"
+          >
+            Open library
+          </Link>
         </div>
       </div>
 
-      <div className="mt-12 grid gap-4 md:grid-cols-3">
-        {[
-          {
-            title: "Four languages",
-            body: "English, Español, Deutsch, Українська — with native script rendering and proper lang attributes.",
-          },
-          {
-            title: "Phrase-level links",
-            body: "Mid-paragraph phrases connect to fragments on the other side, including Cyrillic spans.",
-          },
-          {
-            title: "Triangle traces",
-            body: "Click any aligned passage to draw quiet wedges between the two columns.",
-          },
-        ].map((feature) => (
-          <div
-            key={feature.title}
-            className="rounded-xl border border-border bg-surface p-5"
-          >
-            <h2 className="text-base font-medium text-ink">{feature.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{feature.body}</p>
-          </div>
-        ))}
+      <div className="grid border-b border-border md:grid-cols-2 xl:grid-cols-4">
+        {available.map((item) => {
+          const book = booksBySlug.get(item.slug)!;
+
+          return (
+            <Link
+              key={item.slug}
+              href={`/books/${item.slug}/${item.work}`}
+              className="group border-border py-6 pr-6 transition hover:bg-surface/70 md:border-r md:pl-6 md:first:pl-0 xl:last:border-r-0"
+            >
+              <span className={cn("mb-5 block h-1 w-10", item.accent)} aria-hidden />
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted">
+                <LanguagePair source={book.sourceLanguage} target={book.targetLanguage} />
+              </p>
+              <h2 className="mt-2 text-xl font-medium text-ink group-hover:text-accent">
+                {item.label}
+              </h2>
+              <p className="mt-5 font-prose text-lg leading-snug text-ink-soft">
+                {item.excerpt}
+              </p>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

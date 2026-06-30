@@ -12,8 +12,7 @@ export const germanBook: Book = {
   authors: [{ name: "Rainer Maria Rilke", role: "author" }],
   sourceLanguage: "de",
   targetLanguage: "en",
-  description:
-    "Rilke's autumn poem in German with linked English lines — umlauts, ß, and compound words.",
+  description: "German autumn lines beside English.",
   coverGradient: "from-stone-100 to-amber-50",
   publishedAt: "1902",
 };
