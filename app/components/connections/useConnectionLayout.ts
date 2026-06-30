@@ -8,9 +8,9 @@ import type { ConnectionRenderLink } from "@/lib/connections/types";
 
 type UseConnectionLayoutOptions = {
   alignment: Alignment | null;
-  containerRef: React.RefObject<HTMLDivElement>;
-  leftScrollRef: React.RefObject<HTMLDivElement>;
-  rightScrollRef: React.RefObject<HTMLDivElement>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  leftScrollRef: React.RefObject<HTMLDivElement | null>;
+  rightScrollRef: React.RefObject<HTMLDivElement | null>;
   getElement: (anchorId: string) => HTMLElement | null;
   visible: boolean;
 };

@@ -19,7 +19,7 @@ type TextColumnProps = {
   dimUnfocused: boolean;
   stagedIds: Set<string>;
   mode?: "read" | "align" | "comment";
-  scrollRef?: React.RefObject<HTMLDivElement>;
+  scrollRef?: React.RefObject<HTMLDivElement | null>;
   onAnchorClick?: (anchorId: string) => void;
   registerRef?: (anchorId: string, element: HTMLElement | null) => void;
   className?: string;
