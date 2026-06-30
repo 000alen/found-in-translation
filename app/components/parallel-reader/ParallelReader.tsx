@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { TextColumn } from "@/app/components/text/TextColumn";
 import { ConnectionOverlay } from "@/app/components/connections";
-import { ConnectionDock, ConnectionLegend } from "./ConnectionDock";
+import { ConnectionDock } from "./ConnectionDock";
 import { ReaderToolbar } from "./ReaderToolbar";
 import { CommentPanel } from "@/app/components/comments/CommentPanel";
 import { useLocalComments } from "@/app/components/comments/useLocalComments";
@@ -180,6 +180,7 @@ export function ParallelReader({
           setShowComments(true);
           break;
         case "a":
+          if (!studioMode) break;
           setMode("align");
           setFocusedAnchorId(null);
           break;
@@ -258,7 +259,10 @@ export function ParallelReader({
               onToggleConnections={() => {
                 setShowConnections((value) => !value);
               }}
-              onToggleComments={() => setShowComments((value) => !value)}
+              onToggleComments={() => {
+                setMode("comment");
+                setShowComments((value) => !value);
+              }}
               onMobileColumnChange={setMobileColumn}
               onSaveAlignments={saveAlignments}
               onDeleteAlignment={deleteFocusedAlignment}
@@ -267,20 +271,6 @@ export function ParallelReader({
           </motion.div>
         )}
       </AnimatePresence>
-
-      {!readMode && !showConnections && (
-        <div className="mt-3 rounded-lg border border-border bg-surface px-4 py-2 text-sm text-muted">
-          Connections hidden — press{" "}
-          <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-xs">L</kbd> to
-          show links
-        </div>
-      )}
-
-      {!readMode && showConnections && (
-        <div className="mt-3">
-          <ConnectionLegend count={alignments.length} />
-        </div>
-      )}
 
       {readMode && (
         <button
@@ -294,15 +284,15 @@ export function ParallelReader({
 
       <div
         className={cn(
-          "relative mt-4 flex min-h-0 flex-1 gap-0",
+          "relative mt-3 flex min-h-0 flex-1 gap-0",
           showComments ? "lg:pr-[340px]" : ""
         )}
       >
         <div
           ref={containerRef}
           className={cn(
-            "reader-layout relative flex min-h-[60vh] flex-1 rounded-xl border border-border bg-surface/80 p-4 md:p-8",
-            mobileColumn === "both" ? "flex-row gap-10" : "flex-col gap-6",
+            "reader-layout relative flex min-h-[68vh] flex-1 border-y border-border bg-transparent py-5",
+            mobileColumn === "both" ? "flex-row gap-12 xl:gap-16" : "flex-col gap-6",
             activeAlignment && "pb-44 md:pb-48"
           )}
           onMouseUp={handleTextSelection}
@@ -423,7 +413,11 @@ export function ParallelReader({
         </div>
       )}
 
-      <KeyboardShortcuts open={showShortcuts} onClose={() => setShowShortcuts(false)} />
+      <KeyboardShortcuts
+        open={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
+        studioMode={studioMode}
+      />
     </div>
   );
 }

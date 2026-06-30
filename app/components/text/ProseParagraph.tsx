@@ -24,14 +24,12 @@ export function ProseParagraph({
   spans,
   groupMap,
   focusedIds,
-  dimUnfocused,
   stagedIds,
   mode = "read",
   onAnchorClick,
   registerRef,
 }: ProseParagraphProps) {
   const parts = splitParagraphWithSpans(segment.text, spans);
-  const hasFocus = focusedIds.size > 0;
   const lang = getLanguage(languageCode);
 
   return (
@@ -49,7 +47,6 @@ export function ProseParagraph({
         const span = part.segment;
         const group = groupMap.get(span.id) ?? null;
         const isFocused = focusedIds.has(span.id);
-        const isDimmed = dimUnfocused && hasFocus && !isFocused;
 
         return (
           <AlignedMark
@@ -57,7 +54,7 @@ export function ProseParagraph({
             anchorId={span.id}
             group={group}
             isFocused={isFocused}
-            isDimmed={isDimmed}
+            isDimmed={false}
             isStaged={stagedIds.has(span.id)}
             mode={mode}
             onClick={onAnchorClick}

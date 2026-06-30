@@ -71,8 +71,8 @@ function PassageList({
             key={item.anchorId}
             type="button"
             onClick={() => onJumpTo(item.anchorId)}
-            className={cn(
-              "group w-full rounded-lg border border-border bg-surface p-3 text-left transition hover:border-border-soft hover:bg-surface-2",
+          className={cn(
+              "group w-full rounded-md border-l border-border bg-transparent py-2 pl-3 text-left transition hover:border-accent",
               "focus-visible:outline-none focus-visible:ring-2",
               color.ring
             )}
@@ -80,7 +80,7 @@ function PassageList({
             <span className={cn("mb-1 block text-[10px] font-medium uppercase tracking-wider", color.text)}>
               {item.label}
             </span>
-            <span className="text-body block text-sm leading-relaxed text-ink">
+            <span className="text-body block text-sm leading-snug text-ink">
               {item.quote}
             </span>
           </button>
@@ -125,14 +125,14 @@ export function ConnectionDock({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16, scale: 0.98 }}
         transition={{ type: "spring", stiffness: 420, damping: 32 }}
-        className="pointer-events-auto absolute inset-x-4 bottom-4 z-30 mx-auto max-w-4xl"
+        className="pointer-events-auto absolute bottom-10 right-4 z-30 w-[min(34rem,calc(100%-2rem))]"
       >
-        <div className="overflow-hidden rounded-xl border border-border bg-surface/95 shadow-lg backdrop-blur-xl">
-          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+        <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-lg">
+          <div className="flex items-center justify-between gap-3 border-b border-border px-3 py-2">
             <div className="flex items-center gap-3">
               <span className={cn("h-2 w-2 rounded-full", color.bar)} />
               <div>
-                <p className="text-sm font-medium text-ink">Connection</p>
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-ink">Link</p>
                 <p className="text-xs text-muted">{kindLabel(alignment.kind)}</p>
               </div>
             </div>
@@ -145,12 +145,12 @@ export function ConnectionDock({
             </button>
           </div>
 
-          <div className="grid gap-4 p-4 md:grid-cols-[1fr_auto_1fr] md:items-start">
+          <div className="grid gap-3 p-3 md:grid-cols-[1fr_auto_1fr] md:items-start">
             <PassageList heading="Original" items={sourceItems} color={color} onJumpTo={onJumpTo} />
 
             <div className="hidden flex-col items-center justify-center gap-1 px-2 md:flex">
               <div className={cn("h-px w-6", color.bar, "opacity-50")} />
-              <span className="text-sm text-muted">↔</span>
+              <span className="text-xs text-muted">↔</span>
               <div className={cn("h-px w-6", color.bar, "opacity-50")} />
             </div>
 

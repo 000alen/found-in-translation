@@ -25,59 +25,56 @@ export default async function BookPage({ params }: PageProps) {
   const works = await listWorksForBook(bookSlug);
 
   return (
-    <section className="mx-auto w-full max-w-3xl py-8">
-      <Link href="/books" className="text-sm text-muted transition hover:text-accent">
-        ← All editions
-      </Link>
-
-      <div className="mt-5">
-        <p className="text-[11px] uppercase tracking-[0.25em] text-muted">
-          <LanguagePair source={book.sourceLanguage} target={book.targetLanguage} />
-        </p>
-        <h1 className="title mt-1 text-3xl font-medium tracking-tight text-ink">
-          {book.title}
-        </h1>
-        {book.subtitle && <p className="mt-1 text-base text-muted">{book.subtitle}</p>}
-        <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted">{book.description}</p>
+    <section className="mx-auto w-full max-w-5xl py-8">
+      <div className="mb-8 grid gap-6 border-b border-border pb-6 md:grid-cols-[12rem_1fr]">
+        <Link href="/books" className="text-sm text-muted transition hover:text-accent">
+          Library
+        </Link>
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted">
+            <LanguagePair source={book.sourceLanguage} target={book.targetLanguage} />
+          </p>
+          <h1 className="title mt-2 text-5xl font-medium tracking-[-0.045em] text-ink">
+            {book.title}
+          </h1>
+          <p className="mt-2 text-sm text-muted">
+            {book.authors.map((author) => author.name).join(", ")}
+          </p>
+        </div>
       </div>
 
-      <div className="mt-8">
-        <h2 className="mb-3 text-[11px] font-medium uppercase tracking-[0.2em] text-muted">
-          Works
-        </h2>
-        <div className="divide-y divide-border rounded-xl border border-border bg-surface">
-          {works.map((work) => (
-            <div
-              key={work.id}
-              className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted">
-                  {work.contentType}
-                </p>
-                <h3 className="text-lg font-medium text-ink">{work.title}</h3>
-                <p className="mt-0.5 text-sm text-muted">
-                  {work.sourceAuthor}
-                  {work.translator ? ` · ${work.translator}` : ""}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Link
-                  href={`/books/${bookSlug}/${work.slug}`}
-                  className="rounded-full bg-accent px-3.5 py-1.5 text-sm text-white transition hover:opacity-90"
-                >
-                  Read
-                </Link>
-                <Link
-                  href={`/books/${bookSlug}/${work.slug}/studio`}
-                  className="rounded-full border border-border px-3.5 py-1.5 text-sm text-muted transition hover:bg-surface-2 hover:text-ink"
-                >
-                  Studio
-                </Link>
-              </div>
+      <div className="divide-y divide-border border-y border-border">
+        {works.map((work) => (
+          <div
+            key={work.id}
+            className="grid gap-4 py-5 md:grid-cols-[1fr_auto] md:items-center"
+          >
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted">
+                {work.contentType}
+              </p>
+              <h2 className="mt-1 text-2xl font-medium text-ink">{work.title}</h2>
+              <p className="mt-1 text-sm text-muted">
+                {work.sourceAuthor}
+                {work.translator ? ` · ${work.translator}` : ""}
+              </p>
             </div>
-          ))}
-        </div>
+            <div className="flex gap-2">
+              <Link
+                href={`/books/${bookSlug}/${work.slug}`}
+                className="rounded-full bg-ink px-4 py-2 text-sm text-paper transition hover:bg-accent"
+              >
+                Read
+              </Link>
+              <Link
+                href={`/books/${bookSlug}/${work.slug}/studio`}
+                className="rounded-full border border-border px-4 py-2 text-sm text-muted transition hover:text-ink"
+              >
+                Studio
+              </Link>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

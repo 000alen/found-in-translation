@@ -28,38 +28,33 @@ export default async function WorkPage({ params }: PageProps) {
   const typeLabel = work.contentType === "prose" ? "Prose" : "Poetry";
 
   return (
-    <section className="mx-auto w-full max-w-7xl py-6">
-      <div className="mb-6">
-        <Link
-          href={`/books/${bookSlug}`}
-          className="text-sm text-muted transition hover:text-accent"
-        >
-          ← {edition.book.title}
-        </Link>
-        <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
-              {typeLabel} ·{" "}
-              <LanguagePair
-                source={edition.book.sourceLanguage}
-                target={edition.book.targetLanguage}
-              />
-            </p>
-            <h1 className="title mt-1 text-2xl font-medium tracking-tight text-ink md:text-3xl">
-              {work.title}
-            </h1>
-            <p className="mt-1 text-sm text-muted">
-              {work.sourceAuthor}
-              {work.translator ? ` · ${work.translator}` : ""}
-            </p>
-          </div>
-          <Link
-            href={`/books/${bookSlug}/${poemSlug}/studio`}
-            className="inline-flex w-fit rounded-full border border-border px-3.5 py-1.5 text-sm text-muted transition hover:bg-surface-2 hover:text-ink"
-          >
-            Alignment studio
+    <section className="w-full py-3">
+      <div className="mb-4 grid gap-3 border-b border-border pb-4 md:grid-cols-[12rem_1fr_auto] md:items-end">
+        <nav className="text-sm text-muted" aria-label="Breadcrumb">
+          <Link href="/books" className="transition hover:text-accent">Library</Link>
+          <span className="mx-2">/</span>
+          <Link href={`/books/${bookSlug}`} className="transition hover:text-accent">
+            {edition.book.title}
           </Link>
+        </nav>
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.18em] text-muted">
+            {typeLabel} ·{" "}
+            <LanguagePair
+              source={edition.book.sourceLanguage}
+              target={edition.book.targetLanguage}
+            />
+          </p>
+          <h1 className="title mt-1 text-3xl font-medium tracking-[-0.035em] text-ink md:text-4xl">
+            {work.title}
+          </h1>
         </div>
+        <Link
+          href={`/books/${bookSlug}/${poemSlug}/studio`}
+          className="justify-self-start rounded-full border border-border px-3 py-1 text-xs text-muted transition hover:text-ink md:justify-self-end"
+        >
+          Studio
+        </Link>
       </div>
 
       <ParallelReader edition={edition} />

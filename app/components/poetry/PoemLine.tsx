@@ -23,7 +23,7 @@ const lineClass = (props: {
   group: SegmentGroupInfo | null | undefined;
 }) =>
   cn(
-    "poem-line group relative mb-1 w-full rounded-xl px-3 py-2.5 text-left transition-all duration-200",
+    "poem-line group relative mb-0.5 w-full rounded-md px-2 py-1.5 text-left transition-all duration-200",
     props.mode === "align" && "cursor-pointer",
     props.mode === "comment" && "cursor-text select-text",
     props.mode === "read" && "cursor-pointer hover:bg-surface-2/80",
@@ -50,7 +50,7 @@ function LineContent({
       {group && (
         <span
           className={cn(
-            "absolute bottom-2 left-0 top-2 w-1 rounded-full transition-all",
+            "absolute bottom-1.5 left-0 top-1.5 w-0.5 rounded-full transition-all",
             group.color.bar,
             isFocused ? "opacity-100" : "opacity-50 group-hover:opacity-80"
           )}
@@ -60,7 +60,7 @@ function LineContent({
 
       <span
         className={cn(
-          "font-poetry block pl-2 text-[1.05rem] leading-[1.9] text-ink",
+          "font-poetry block pl-2 text-[1.03rem] leading-[1.78] text-ink",
           isFocused && "font-medium"
         )}
       >
